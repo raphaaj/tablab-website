@@ -6,9 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
     "lint": "next lint",
-    "prettier:check": "prettier --check src/",
-    "prettier:write": "prettier --write src/"
+    "prettier:check": "prettier --check src/ tests/",
+    "prettier:write": "prettier --write src/ tests/"
   },
   "dependencies": {
     "next": "11.1.2",
@@ -16,13 +18,19 @@
     "react-dom": "17.0.2"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.14.1",
+    "@testing-library/react": "^12.1.2",
     "@types/react": "17.0.32",
+    "babel-jest": "^27.3.1",
     "commitizen": "^4.2.4",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "7.32.0",
     "eslint-config-next": "11.1.2",
     "eslint-config-prettier": "^8.3.0",
+    "identity-obj-proxy": "^3.0.0",
+    "jest": "^27.3.1",
     "prettier": "2.4.1",
+    "react-test-renderer": "^17.0.2",
     "typescript": "4.4.4"
   },
   "config": {
