@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prettier:check": "prettier --check pages/",
+    "prettier:write": "prettier --write pages/"
   },
   "dependencies": {
     "next": "11.1.2",
@@ -19,6 +21,8 @@
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "7.32.0",
     "eslint-config-next": "11.1.2",
+    "eslint-config-prettier": "^8.3.0",
+    "prettier": "2.4.1",
     "typescript": "4.4.4"
   },
   "config": {
