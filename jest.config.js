@@ -1,5 +1,4 @@
 /** @type {import('@jest/types').Config.InitialOptions} */
-
 module.exports = {
   collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}', '!**/*.d.ts', '!**/node_modules/**'],
   moduleNameMapper: {

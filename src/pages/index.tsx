@@ -1,9 +1,39 @@
-import type { NextPage } from 'next';
+import type { NextPage, GetStaticProps } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import styles from '../../styles/Home.module.css';
 
+export const getStaticProps: GetStaticProps = async (context) => {
+  return {
+    props: {
+      ...(await serverSideTranslations(context.locale || '', ['common'])),
+    },
+  };
+};
+
 const Home: NextPage = () => {
+  const router = useRouter();
+  const { t } = useTranslation('common');
+
+  let localeOptions;
+  if (router.locales) {
+    localeOptions = (
+      <nav>
+        {router.locales.map((locale) => (
+          <button key={locale}>
+            <Link href={router.asPath} locale={locale}>
+              <a>{locale}</a>
+            </Link>
+          </button>
+        ))}
+      </nav>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -16,6 +46,12 @@ const Home: NextPage = () => {
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
+
+        <p>Your current locale is: {router.locale}</p>
+
+        <p>{t('common:app-description')}</p>
+
+        {localeOptions}
 
         <p className={styles.description}>
           Get started by editing <code className={styles.code}>pages/index.js</code>
