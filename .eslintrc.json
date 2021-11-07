@@ -1,3 +1,10 @@
 {
-  "extends": ["next/core-web-vitals", "prettier"]
+  "extends": ["next/core-web-vitals", "prettier"],
+  "plugins": ["@emotion"],
+  "rules": {
+    "@emotion/jsx-import": "error",
+    "@emotion/styled-import": "error",
+    "@emotion/import-from-emotion": "error",
+    "@emotion/no-vanilla": "error"
+  }
 }
