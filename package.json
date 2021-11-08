@@ -9,8 +9,8 @@
     "test": "jest",
     "test:coverage": "jest --coverage",
     "lint": "next lint",
-    "prettier:check": "prettier --check src/ tests/",
-    "prettier:write": "prettier --write src/ tests/"
+    "prettier:check": "prettier --ignore-path .gitignore --check src/ tests/",
+    "prettier:write": "prettier --ignore-path .gitignore --write src/ tests/"
   },
   "dependencies": {
     "@emotion/cache": "^11.5.0",
