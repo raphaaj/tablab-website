@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Box, Container, Link as StyledLink, Typography } from '@mui/material';
+import Layout from '@components/layout';
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -23,19 +24,21 @@ const Home: NextPage = () => {
   }
 
   return (
-    <Container maxWidth="md">
-      <Box component="main" sx={{ textAlign: 'center' }}>
-        <Typography variant="h4" gutterBottom>
-          {router.locale}
-        </Typography>
+    <Layout>
+      <Container maxWidth="md">
+        <Box component="main" sx={{ textAlign: 'center' }}>
+          <Typography variant="h4" gutterBottom>
+            {router.locale}
+          </Typography>
 
-        <Typography variant="body1" gutterBottom>
-          {t('common:app-description')}
-        </Typography>
+          <Typography variant="body1" gutterBottom>
+            {t('common:app-description')}
+          </Typography>
 
-        {localeOptions}
-      </Box>
-    </Container>
+          {localeOptions}
+        </Box>
+      </Container>
+    </Layout>
   );
 };
 
@@ -44,7 +47,7 @@ export default Home;
 export const getStaticProps: GetStaticProps = async (context) => {
   return {
     props: {
-      ...(await serverSideTranslations(context.locale || '', ['common'])),
+      ...(await serverSideTranslations(context.locale || '', ['common', 'layout'])),
     },
   };
 };

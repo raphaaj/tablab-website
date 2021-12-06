@@ -1,0 +1,22 @@
+{
+  "internalNavigationMenu": {
+    "label": "Navigation menu",
+    "homeLabel": "Home",
+    "aboutLabel": "About"
+  },
+  "appOptionsMenu": {
+    "label": "Toggle options menu"
+  },
+  "translationMenu": {
+    "label": "Change language",
+    "drawerLabel": "Language",
+    "localeToLanguage": {
+      "en-US": "English",
+      "pt-BR": "Portuguese"
+    }
+  },
+  "gitHubRepositoryLink": {
+    "label": "GitHub repository",
+    "drawerLabel": "GitHub Repository"
+  }
+}
