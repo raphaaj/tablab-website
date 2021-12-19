@@ -1,7 +1,7 @@
 import { GetStaticProps } from 'next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Typography } from '@mui/material';
-import Layout from '@components/layout';
+import Layout from '@components/layout/layout';
 
 export default function About() {
   return (

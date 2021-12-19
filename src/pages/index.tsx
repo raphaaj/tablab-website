@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { Box, Container, Link as StyledLink, Typography } from '@mui/material';
-import Layout from '@components/layout';
+import Layout from '@components/layout/layout';
 
 const Home: NextPage = () => {
   const router = useRouter();

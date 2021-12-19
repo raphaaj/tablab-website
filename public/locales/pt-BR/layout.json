@@ -1,22 +1,28 @@
 {
-  "internalNavigationMenu": {
-    "label": "Menu de navegação",
-    "homeLabel": "Início",
-    "aboutLabel": "Sobre"
-  },
-  "appOptionsMenu": {
-    "label": "Alternar exibição do menu de opções"
-  },
-  "translationMenu": {
-    "label": "Alterar idioma",
-    "drawerLabel": "Idioma",
-    "localeToLanguage": {
-      "en-US": "Inglês",
-      "pt-BR": "Português"
+  "navigation": {
+    "homeLink": {
+      "shortLabel": "Início",
+      "descriptiveLabel": "Ir para o início"
+    },
+    "aboutLink": {
+      "shortLabel": "Sobre",
+      "descriptiveLabel": "Saber mais"
+    },
+    "gitHubRepositoryLink": {
+      "shortLabel": "Repositório no GitHub",
+      "descriptiveLabel": "Verificar repositório no GitHub"
     }
   },
-  "gitHubRepositoryLink": {
-    "label": "Repositório no GitHub",
-    "drawerLabel": "Repositório no GitHub"
+  "options": {
+    "shortLabel": "Mais opções",
+    "descriptiveLabel": "Alternar exibição do menu de opções",
+    "language": {
+      "shortLabel": "Idioma",
+      "descriptiveLabel": "Alterar idioma",
+      "localeToLanguage": {
+        "en-US": "Inglês",
+        "pt-BR": "Português"
+      }
+    }
   }
 }

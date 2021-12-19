@@ -1,22 +1,28 @@
 {
-  "internalNavigationMenu": {
-    "label": "Navigation menu",
-    "homeLabel": "Home",
-    "aboutLabel": "About"
-  },
-  "appOptionsMenu": {
-    "label": "Toggle options menu"
-  },
-  "translationMenu": {
-    "label": "Change language",
-    "drawerLabel": "Language",
-    "localeToLanguage": {
-      "en-US": "English",
-      "pt-BR": "Portuguese"
+  "navigation": {
+    "homeLink": {
+      "shortLabel": "Home",
+      "descriptiveLabel": "Go to homepage"
+    },
+    "aboutLink": {
+      "shortLabel": "About",
+      "descriptiveLabel": "About"
+    },
+    "gitHubRepositoryLink": {
+      "shortLabel": "GitHub repository",
+      "descriptiveLabel": "Check repository on GitHub"
     }
   },
-  "gitHubRepositoryLink": {
-    "label": "GitHub repository",
-    "drawerLabel": "GitHub Repository"
+  "options": {
+    "shortLabel": "More options",
+    "descriptiveLabel": "Toggle options menu",
+    "language": {
+      "shortLabel": "Language",
+      "descriptiveLabel": "Change language",
+      "localeToLanguage": {
+        "en-US": "English",
+        "pt-BR": "Portuguese"
+      }
+    }
   }
 }
