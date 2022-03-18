@@ -38,7 +38,6 @@
     "tablab-i18n": "^1.0.0-alpha.1"
   },
   "devDependencies": {
-    "@emotion/babel-plugin": "^11.7.2",
     "@emotion/eslint-plugin": "^11.7.0",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.4",
