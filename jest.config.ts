@@ -1,10 +1,9 @@
 import nextJest from 'next/jest';
-import type { InitialOptionsTsJest } from 'ts-jest/dist/types';
+import type { Config as JestConfig } from '@jest/types';
 
 const createJestConfig = nextJest({ dir: './' });
 
-const customJestConfig: InitialOptionsTsJest = {
-  preset: 'ts-jest',
+const customJestConfig: JestConfig.InitialOptions = {
   testEnvironment: 'jest-environment-jsdom',
   collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
