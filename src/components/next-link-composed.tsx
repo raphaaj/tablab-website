@@ -8,13 +8,14 @@ const Anchor = styled('a')({});
 interface NextLinkComposedProps
   extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'>,
     Omit<NextLinkProps, 'href' | 'as'> {
-  to: NextLinkProps['href'];
-  linkAs?: NextLinkProps['as'];
   href?: NextLinkProps['href'];
+  linkAs?: NextLinkProps['as'];
+  to: NextLinkProps['href'];
 }
 
 export const NextLinkComposed = forwardRef<HTMLAnchorElement, NextLinkComposedProps>(
   function NextLinkComposed(props, ref) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { to, linkAs, href, replace, scroll, shallow, prefetch, locale, ...other } = props;
 
     return (

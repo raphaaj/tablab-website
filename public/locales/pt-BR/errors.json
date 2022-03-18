@@ -1,0 +1,8 @@
+{
+  "code2message": {
+    "0": "Erro inesperado",
+    "1": "Erros de validação identificados",
+    "2": "Método http não permitido",
+    "3": "Erro ao renderizar tablatura"
+  }
+}

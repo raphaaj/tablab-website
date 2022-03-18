@@ -16,9 +16,9 @@ import { GitHub as GitHubIcon, Translate as TranslateIcon } from '@mui/icons-mat
 import { NextLinkComposed } from '@components/next-link-composed';
 
 export interface TopAppBarProps {
-  showMenu: boolean;
-  currentPath: string;
   currentLocale?: string;
+  currentPath: string;
+  showMenu: boolean;
 }
 
 const TopAppBar: FC<TopAppBarProps> = ({ showMenu, currentPath, currentLocale }) => {

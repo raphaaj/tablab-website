@@ -1,12 +1,12 @@
-import Head from 'next/head';
-import { AppProps } from 'next/app';
-import { useRouter } from 'next/router';
-import { appWithTranslation } from 'next-i18next';
-import { ThemeProvider } from '@mui/material/styles';
-import { CssBaseline } from '@mui/material';
 import { CacheProvider, EmotionCache } from '@emotion/react';
-import createEmotionCache from '@lib/createEmotionCache';
-import createTheme from '@lib/createTheme';
+import { CssBaseline } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
+import createTheme from '@styles/theme/create-theme';
+import createEmotionCache from '@utils/create-emotion-cache';
+import { appWithTranslation } from 'next-i18next';
+import { AppProps } from 'next/app';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
 
 const clientSideEmotionCache = createEmotionCache();
 

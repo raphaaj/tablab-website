@@ -1,10 +1,57 @@
 {
-  "extends": ["next/core-web-vitals", "prettier"],
-  "plugins": ["@emotion"],
+  "extends": ["next/core-web-vitals", "plugin:@typescript-eslint/recommended", "prettier"],
+  "plugins": ["@emotion", "@typescript-eslint"],
   "rules": {
     "@emotion/jsx-import": "error",
     "@emotion/styled-import": "error",
     "@emotion/import-from-emotion": "error",
-    "@emotion/no-vanilla": "error"
+    "@emotion/no-vanilla": "error",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/explicit-member-accessibility": "error",
+    "@typescript-eslint/member-ordering": [
+      "warn",
+      {
+        "default": {
+          "memberTypes": [
+            // Static Fields
+            "public-static-field",
+            "protected-static-field",
+            "private-static-field",
+
+            // Static Methods
+            "public-static-method",
+            "protected-static-method",
+            "private-static-method",
+
+            // Instance Fields
+            "public-instance-field",
+            "public-abstract-field",
+            "protected-instance-field",
+            "protected-abstract-field",
+            "private-instance-field",
+            "private-abstract-field",
+
+            "constructor",
+
+            // Instance Methods
+            "public-instance-method",
+            "public-abstract-method",
+            "protected-instance-method",
+            "protected-abstract-method",
+            "private-instance-method",
+            "private-abstract-method"
+          ],
+          "order": "alphabetically"
+        },
+        "interfaces": {
+          "memberTypes": ["signature", "field", "constructor", "method"],
+          "order": "alphabetically"
+        },
+        "typeLiterals": {
+          "memberTypes": ["signature", "field", "constructor", "method"],
+          "order": "alphabetically"
+        }
+      }
+    ]
   }
 }

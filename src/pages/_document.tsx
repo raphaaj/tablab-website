@@ -1,11 +1,11 @@
-import * as React from 'react';
-import Document, { Html, Head, Main, NextScript, DocumentContext } from 'next/document';
 import createEmotionServer from '@emotion/server/create-instance';
-import createEmotionCache from '@lib/createEmotionCache';
-import createTheme from '@lib/createTheme';
+import createTheme from '@styles/theme/create-theme';
+import createEmotionCache from '@utils/create-emotion-cache';
+import Document, { DocumentContext, Head, Html, Main, NextScript } from 'next/document';
+import * as React from 'react';
 
 export default class MyDocument extends Document {
-  static async getInitialProps(context: DocumentContext) {
+  public static async getInitialProps(context: DocumentContext) {
     const originalRenderPage = context.renderPage;
 
     const cache = createEmotionCache();
@@ -34,7 +34,7 @@ export default class MyDocument extends Document {
     };
   }
 
-  render() {
+  public render() {
     const theme = createTheme(this.props.locale);
 
     return (

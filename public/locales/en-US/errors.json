@@ -1,0 +1,8 @@
+{
+  "code2message": {
+    "0": "Unexpected error",
+    "1": "Validation errors identified",
+    "2": "Http method not allowed",
+    "3": "Error on tab rendering"
+  }
+}

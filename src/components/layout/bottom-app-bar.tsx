@@ -1,8 +1,15 @@
-import { FC, useState } from 'react';
-import { useTranslation } from 'next-i18next';
+import { NextLinkComposed } from '@components/next-link-composed';
+import {
+  ExpandLess as ExpandLessIcon,
+  ExpandMore as ExpandMoreIcon,
+  GitHub as GitHubIcon,
+  Home as HomeIcon,
+  Info as InfoIcon,
+  Menu as MenuIcon,
+  Translate as TranslateIcon,
+} from '@mui/icons-material';
 import {
   AppBar,
-  Box,
   Collapse,
   Drawer,
   IconButton,
@@ -15,16 +22,8 @@ import {
   Tooltip,
   useScrollTrigger,
 } from '@mui/material';
-import {
-  ExpandLess as ExpandLessIcon,
-  ExpandMore as ExpandMoreIcon,
-  GitHub as GitHubIcon,
-  Home as HomeIcon,
-  Info as InfoIcon,
-  Menu as MenuIcon,
-  Translate as TranslateIcon,
-} from '@mui/icons-material';
-import { NextLinkComposed } from '@components/next-link-composed';
+import { useTranslation } from 'next-i18next';
+import { FC, useState } from 'react';
 
 export interface HideBottomAppBarOnScrollProps {
   children: React.ReactElement;
@@ -41,8 +40,8 @@ const HideBottomAppBarOnScroll: FC<HideBottomAppBarOnScrollProps> = ({ children 
 };
 
 export interface BottomAppBarProps {
-  currentPath: string;
   currentLocale?: string;
+  currentPath: string;
 }
 
 const BottomAppBar: FC<BottomAppBarProps> = ({ currentPath, currentLocale }) => {
