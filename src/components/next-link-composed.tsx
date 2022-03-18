@@ -1,7 +1,7 @@
 // https://mui.com/guides/routing/#next-js
-import { forwardRef } from 'react';
-import NextLink, { LinkProps as NextLinkProps } from 'next/link';
 import { styled } from '@mui/material/styles';
+import NextLink, { LinkProps as NextLinkProps } from 'next/link';
+import { forwardRef } from 'react';
 
 const Anchor = styled('a')({});
 

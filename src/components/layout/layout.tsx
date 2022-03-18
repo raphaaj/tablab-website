@@ -1,9 +1,10 @@
-import { FC } from 'react';
-import { useRouter } from 'next/router';
-import { useTheme } from '@mui/material/styles';
-import { Box, useMediaQuery } from '@mui/material';
-import TopAppBar from '@components/layout/top-app-bar';
 import BottomAppBar from '@components/layout/bottom-app-bar';
+import TopAppBar from '@components/layout/top-app-bar';
+import Box from '@mui/material/Box';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useRouter } from 'next/router';
+import { FC } from 'react';
 
 const Layout: FC = ({ children }) => {
   const theme = useTheme();

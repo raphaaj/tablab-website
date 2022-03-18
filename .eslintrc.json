@@ -6,6 +6,12 @@
     "@emotion/styled-import": "error",
     "@emotion/import-from-emotion": "error",
     "@emotion/no-vanilla": "error",
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": ["@mui/*/*/*", "!@mui/material/test-utils/*"]
+      }
+    ],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/explicit-member-accessibility": "error",
     "@typescript-eslint/member-ordering": [

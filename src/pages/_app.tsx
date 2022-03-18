@@ -1,5 +1,5 @@
 import { CacheProvider, EmotionCache } from '@emotion/react';
-import { CssBaseline } from '@mui/material';
+import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
 import createTheme from '@styles/theme/create-theme';
 import createEmotionCache from '@utils/create-emotion-cache';

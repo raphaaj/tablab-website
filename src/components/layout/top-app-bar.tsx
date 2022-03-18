@@ -1,19 +1,18 @@
-import { FC, useState } from 'react';
-import { useTranslation } from 'next-i18next';
-import {
-  AppBar,
-  Box,
-  Button,
-  IconButton,
-  Link as MuiLink,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-import { GitHub as GitHubIcon, Translate as TranslateIcon } from '@mui/icons-material';
 import { NextLinkComposed } from '@components/next-link-composed';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import TranslateIcon from '@mui/icons-material/Translate';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import MuiLink from '@mui/material/Link';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import Toolbar from '@mui/material/Toolbar';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
+import { useTranslation } from 'next-i18next';
+import { FC, useState } from 'react';
 
 export interface TopAppBarProps {
   currentLocale?: string;

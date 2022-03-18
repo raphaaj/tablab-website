@@ -1,10 +1,13 @@
-import type { NextPage, GetStaticProps } from 'next';
-import NextLink from 'next/link';
-import { useRouter } from 'next/router';
+import Layout from '@components/layout/layout';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import StyledLink from '@mui/material/Link';
+import Typography from '@mui/material/Typography';
+import type { GetStaticProps, NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import { Box, Container, Link as StyledLink, Typography } from '@mui/material';
-import Layout from '@components/layout/layout';
+import NextLink from 'next/link';
+import { useRouter } from 'next/router';
 
 const Home: NextPage = () => {
   const router = useRouter();

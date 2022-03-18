@@ -1,27 +1,23 @@
 import { NextLinkComposed } from '@components/next-link-composed';
-import {
-  ExpandLess as ExpandLessIcon,
-  ExpandMore as ExpandMoreIcon,
-  GitHub as GitHubIcon,
-  Home as HomeIcon,
-  Info as InfoIcon,
-  Menu as MenuIcon,
-  Translate as TranslateIcon,
-} from '@mui/icons-material';
-import {
-  AppBar,
-  Collapse,
-  Drawer,
-  IconButton,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Slide,
-  Toolbar,
-  Tooltip,
-  useScrollTrigger,
-} from '@mui/material';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import HomeIcon from '@mui/icons-material/Home';
+import InfoIcon from '@mui/icons-material/Info';
+import MenuIcon from '@mui/icons-material/Menu';
+import TranslateIcon from '@mui/icons-material/Translate';
+import AppBar from '@mui/material/AppBar';
+import Collapse from '@mui/material/Collapse';
+import Drawer from '@mui/material/Drawer';
+import IconButton from '@mui/material/IconButton';
+import List from '@mui/material/List';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import Slide from '@mui/material/Slide';
+import Toolbar from '@mui/material/Toolbar';
+import Tooltip from '@mui/material/Tooltip';
+import useScrollTrigger from '@mui/material/useScrollTrigger';
 import { useTranslation } from 'next-i18next';
 import { FC, useState } from 'react';
 
