@@ -6,7 +6,11 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useRouter } from 'next/router';
 import { FC } from 'react';
 
-const Layout: FC = ({ children }) => {
+type LayoutProps = {
+  children?: React.ReactNode;
+};
+
+const Layout: FC<LayoutProps> = ({ children }) => {
   const theme = useTheme();
   const router = useRouter();
 
