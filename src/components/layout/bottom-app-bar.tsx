@@ -40,6 +40,10 @@ export interface BottomAppBarProps {
   currentPath: string;
 }
 
+export const HIGHLIGHT_OPACITY = 1;
+
+export const LOWLIGHT_OPACITY = 0.6;
+
 const BottomAppBar: FC<BottomAppBarProps> = ({ currentPath, currentLocale }) => {
   const { t } = useTranslation('layout');
 
@@ -64,7 +68,7 @@ const BottomAppBar: FC<BottomAppBarProps> = ({ currentPath, currentLocale }) => 
         <Toolbar sx={{ justifyContent: 'space-around' }}>
           <Tooltip title={t<string>('navigation.homeLink.shortLabel')} arrow>
             <IconButton
-              sx={{ opacity: currentPath === '/' ? 1 : 0.6 }}
+              sx={{ opacity: currentPath === '/' ? HIGHLIGHT_OPACITY : LOWLIGHT_OPACITY }}
               color="inherit"
               component={NextLinkComposed}
               to="/"
@@ -76,7 +80,7 @@ const BottomAppBar: FC<BottomAppBarProps> = ({ currentPath, currentLocale }) => 
 
           <Tooltip title={t<string>('navigation.aboutLink.shortLabel')} arrow>
             <IconButton
-              sx={{ opacity: currentPath === '/about' ? 1 : 0.6 }}
+              sx={{ opacity: currentPath === '/about' ? HIGHLIGHT_OPACITY : LOWLIGHT_OPACITY }}
               color="inherit"
               component={NextLinkComposed}
               to="/about"
@@ -115,7 +119,7 @@ const BottomAppBar: FC<BottomAppBarProps> = ({ currentPath, currentLocale }) => 
               <Collapse in={isDrawerTranslationMenuOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
                   <ListItemButton
-                    selected={currentLocale !== 'pt-BR'}
+                    selected={currentLocale === 'en-US'}
                     component={NextLinkComposed}
                     to={currentPath}
                     locale="en-US"

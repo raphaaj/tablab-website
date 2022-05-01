@@ -16,6 +16,7 @@ const customJestConfig: JestConfig.InitialOptions = {
     '^@utils/(.*)$': '<rootDir>/src/utils/$1',
     '^@view-models/(.*)$': '<rootDir>/src/view-models/$1',
     '^@test-utils/(.*)$': '<rootDir>/tests/.utils/$1',
+    '^next-i18next.config': '<rootDir>/next-i18next.config',
   },
 };
 

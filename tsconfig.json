@@ -23,7 +23,8 @@
       "@styles/*": ["src/styles/*"],
       "@utils/*": ["src/utils/*"],
       "@view-models/*": ["src/view-models/*"],
-      "@test-utils/*": ["tests/.utils/*"]
+      "@test-utils/*": ["tests/.utils/*"],
+      "next-i18next.config": ["next-i18next.config"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],

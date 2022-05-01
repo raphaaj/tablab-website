@@ -17,10 +17,14 @@ import { FC, useState } from 'react';
 export interface TopAppBarProps {
   currentLocale?: string;
   currentPath: string;
-  showMenu: boolean;
+  showMenu?: boolean;
 }
 
-const TopAppBar: FC<TopAppBarProps> = ({ showMenu, currentPath, currentLocale }) => {
+export const HIGHLIGHT_OPACITY = 1;
+
+export const LOWLIGHT_OPACITY = 0.6;
+
+const TopAppBar: FC<TopAppBarProps> = ({ showMenu = false, currentPath, currentLocale }) => {
   const { t } = useTranslation('layout');
 
   const [translationMenuAnchorElement, setTranslationMenuAnchorElement] =
@@ -48,7 +52,7 @@ const TopAppBar: FC<TopAppBarProps> = ({ showMenu, currentPath, currentLocale })
         })}
       >
         <MuiLink color="inherit" underline="none" component={NextLinkComposed} to="/">
-          <Typography variant="h5" component="div">
+          <Typography variant="h5" noWrap>
             Tablab
           </Typography>
         </MuiLink>
@@ -59,7 +63,7 @@ const TopAppBar: FC<TopAppBarProps> = ({ showMenu, currentPath, currentLocale })
 
             <Box component="nav">
               <Button
-                sx={{ opacity: currentPath === '/' ? 1 : 0.6 }}
+                sx={{ opacity: currentPath === '/' ? HIGHLIGHT_OPACITY : LOWLIGHT_OPACITY }}
                 color="inherit"
                 component={NextLinkComposed}
                 to="/"
@@ -69,7 +73,7 @@ const TopAppBar: FC<TopAppBarProps> = ({ showMenu, currentPath, currentLocale })
               </Button>
 
               <Button
-                sx={{ opacity: currentPath === '/about' ? 1 : 0.6 }}
+                sx={{ opacity: currentPath === '/about' ? HIGHLIGHT_OPACITY : LOWLIGHT_OPACITY }}
                 color="inherit"
                 component={NextLinkComposed}
                 to="/about"
@@ -120,7 +124,7 @@ const TopAppBar: FC<TopAppBarProps> = ({ showMenu, currentPath, currentLocale })
                 onClose={handleCloseTranslationMenuAction}
               >
                 <MenuItem
-                  selected={currentLocale !== 'pt-BR'}
+                  selected={currentLocale === 'en-US'}
                   component={NextLinkComposed}
                   to={currentPath}
                   locale="en-US"
