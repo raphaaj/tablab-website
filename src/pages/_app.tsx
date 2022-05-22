@@ -1,3 +1,8 @@
+/**
+ * Guide for integration of MUI 5 with a nextjs app:
+ * * https://mui.com/pt/material-ui/getting-started/example-projects/
+ * * https://github.com/mui/material-ui/blob/master/examples/nextjs-with-typescript/pages/_app.tsx
+ */
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
@@ -31,4 +36,5 @@ function MyApp({ Component, emotionCache = clientSideEmotionCache, pageProps }: 
     </CacheProvider>
   );
 }
+
 export default appWithTranslation(MyApp);

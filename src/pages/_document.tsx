@@ -1,3 +1,8 @@
+/**
+ * Guide for integration of MUI 5 with a nextjs app:
+ * * https://mui.com/pt/material-ui/getting-started/example-projects/
+ * * https://github.com/mui/material-ui/blob/master/examples/nextjs-with-typescript/pages/_document.tsx
+ */
 import createEmotionServer from '@emotion/server/create-instance';
 import createTheme from '@styles/theme/create-theme';
 import createEmotionCache from '@utils/create-emotion-cache';
@@ -13,8 +18,10 @@ export default class MyDocument extends Document {
 
     context.renderPage = () =>
       originalRenderPage({
-        // eslint-disable-next-line react/display-name
-        enhanceApp: (App: any) => (props) => <App emotionCache={cache} {...props} />,
+        enhanceApp: (App: any) =>
+          function EnhanceApp(props) {
+            return <App emotionCache={cache} {...props} />;
+          },
       });
 
     const initialProps = await Document.getInitialProps(context);
@@ -23,14 +30,13 @@ export default class MyDocument extends Document {
       <style
         data-emotion={`${style.key} ${style.ids.join(' ')}`}
         key={style.key}
-        // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: style.css }}
       />
     ));
 
     return {
       ...initialProps,
-      styles: [...React.Children.toArray(initialProps.styles), ...emotionStyleTags],
+      emotionStyleTags,
     };
   }
 
@@ -40,13 +46,13 @@ export default class MyDocument extends Document {
     return (
       <Html>
         <Head>
-          {/* PWA primary color */}
           <meta name="theme-color" content={theme.palette.primary.main} />
           <link
             rel="stylesheet"
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
           />
           <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+          {(this.props as any).emotionStyleTags}
         </Head>
         <body>
           <Main />
