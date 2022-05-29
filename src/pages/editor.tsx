@@ -4,8 +4,8 @@ import { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
-export default function About() {
-  const { t } = useTranslation('about');
+export default function Editor() {
+  const { t } = useTranslation('editor');
 
   return (
     <Layout>
@@ -17,7 +17,7 @@ export default function About() {
 export const getStaticProps: GetStaticProps = async (context) => {
   return {
     props: {
-      ...(await serverSideTranslations(context.locale || '', ['common', 'about', 'layout'])),
+      ...(await serverSideTranslations(context.locale || '', ['common', 'editor', 'layout'])),
     },
   };
 };

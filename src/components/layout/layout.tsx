@@ -20,7 +20,7 @@ const Layout: FC<LayoutProps> = ({ children }) => {
     <>
       <TopAppBar showMenu={!isMobile} currentPath={router.asPath} currentLocale={router.locale} />
 
-      <Box sx={{ ml: 2, mr: 2 }}>
+      <Box mx={2} mb="4rem">
         <main>{children}</main>
       </Box>
 

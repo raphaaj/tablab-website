@@ -67,6 +67,34 @@ describe(`${TopAppBar.name}`, () => {
       });
     });
 
+    describe('editor page link', () => {
+      it('should render a highlighted link to the editor page when at the editor page', () => {
+        render(<TopAppBar showMenu currentPath="/editor" currentLocale="en-US" />);
+
+        const editorPageLink = screen.getByRole('link', {
+          name: 'navigation.editorLink.descriptiveLabel',
+        });
+
+        expect(editorPageLink).toBeInTheDocument();
+        expect(editorPageLink).toHaveAttribute('href', '/editor');
+        expect(editorPageLink).toHaveTextContent('navigation.editorLink.shortLabel');
+        expect(editorPageLink).toHaveStyle(`opacity: ${HIGHLIGHT_OPACITY}`);
+      });
+
+      it('should render a lowlighted link to the editor page when not at the editor page', () => {
+        render(<TopAppBar showMenu currentPath="/other" currentLocale="en-US" />);
+
+        const editorPageLink = screen.getByRole('link', {
+          name: 'navigation.editorLink.descriptiveLabel',
+        });
+
+        expect(editorPageLink).toBeInTheDocument();
+        expect(editorPageLink).toHaveAttribute('href', '/editor');
+        expect(editorPageLink).toHaveTextContent('navigation.editorLink.shortLabel');
+        expect(editorPageLink).toHaveStyle(`opacity: ${LOWLIGHT_OPACITY}`);
+      });
+    });
+
     describe('about page link', () => {
       it('should render a highlighted link to the about page when at the about page', () => {
         render(<TopAppBar showMenu currentPath="/about" currentLocale="en-US" />);

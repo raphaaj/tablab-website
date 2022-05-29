@@ -65,6 +65,55 @@ describe(`${BottomAppBar.name}`, () => {
     });
   });
 
+  describe('editor page link', () => {
+    it('should render a highlighted link to the editor page when at the editor page', () => {
+      render(<BottomAppBar currentPath="/editor" currentLocale="en-US" />);
+
+      const editorPageLink = screen.getByRole('link', {
+        name: 'navigation.editorLink.descriptiveLabel',
+      });
+
+      expect(editorPageLink).toBeInTheDocument();
+      expect(editorPageLink).toHaveAttribute('href', '/editor');
+      expect(editorPageLink).toHaveStyle(`opacity: ${HIGHLIGHT_OPACITY}`);
+    });
+
+    it('should render a lowlighted link to the editor page when not at the editor page', () => {
+      render(<BottomAppBar currentPath="/other" currentLocale="en-US" />);
+
+      const editorPageLink = screen.getByRole('link', {
+        name: 'navigation.editorLink.descriptiveLabel',
+      });
+
+      expect(editorPageLink).toBeInTheDocument();
+      expect(editorPageLink).toHaveAttribute('href', '/editor');
+      expect(editorPageLink).toHaveStyle(`opacity: ${LOWLIGHT_OPACITY}`);
+    });
+
+    it(`should render a descriptive tooltip when the editor page link is hovered`, async () => {
+      render(<BottomAppBar currentPath="/" currentLocale="en-US" />);
+
+      let editorPageLinkTooltip = screen.queryByRole('tooltip', {
+        name: 'navigation.editorLink.shortLabel',
+      });
+      expect(editorPageLinkTooltip).not.toBeInTheDocument();
+
+      const editorPageLink = screen.getByRole('link', {
+        name: 'navigation.editorLink.descriptiveLabel',
+      });
+
+      const user = userEvent.setup();
+      await user.hover(editorPageLink);
+
+      editorPageLinkTooltip = await screen.findByRole('tooltip', {
+        name: 'navigation.editorLink.shortLabel',
+      });
+
+      expect(editorPageLinkTooltip).toBeInTheDocument();
+      expect(editorPageLinkTooltip).toHaveTextContent('navigation.editorLink.shortLabel');
+    });
+  });
+
   describe('about page link', () => {
     it('should render a highlighted link to the about page when at the about page', () => {
       render(<BottomAppBar currentPath="/about" currentLocale="en-US" />);

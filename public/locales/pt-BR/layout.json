@@ -4,6 +4,10 @@
       "shortLabel": "Início",
       "descriptiveLabel": "Ir para o início"
     },
+    "editorLink": {
+      "shortLabel": "Editor",
+      "descriptiveLabel": "Ir para o editor"
+    },
     "aboutLink": {
       "shortLabel": "Sobre",
       "descriptiveLabel": "Saber mais"

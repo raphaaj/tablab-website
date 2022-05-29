@@ -8,4 +8,7 @@ module.exports = {
     dirs: ['src', 'tests'],
   },
   i18n,
+  images: {
+    domains: ['dummyimage.com'],
+  },
 };

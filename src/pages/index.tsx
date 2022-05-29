@@ -1,46 +1,71 @@
 import Layout from '@components/layout/layout';
-import Box from '@mui/material/Box';
-import Container from '@mui/material/Container';
-import StyledLink from '@mui/material/Link';
+import NextLinkComposed from '@components/next-link-composed';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import type { GetStaticProps, NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
-import NextLink from 'next/link';
-import { useRouter } from 'next/router';
+import Image from 'next/image';
 
 const Home: NextPage = () => {
-  const router = useRouter();
-  const { t } = useTranslation('common');
-
-  let localeOptions;
-  if (router.locales) {
-    localeOptions = (
-      <Box component="nav">
-        {router.locales.map((locale) => (
-          <NextLink key={locale} href={router.asPath} locale={locale} passHref>
-            <StyledLink sx={{ margin: 1 }}>{locale}</StyledLink>
-          </NextLink>
-        ))}
-      </Box>
-    );
-  }
+  const { t } = useTranslation('home');
 
   return (
     <Layout>
-      <Container maxWidth="md">
-        <Box component="main" sx={{ textAlign: 'center' }}>
-          <Typography variant="h4" gutterBottom>
-            {router.locale}
+      <Grid
+        container
+        spacing={2}
+        alignItems="center"
+        textAlign="center"
+        justifyContent="center"
+        sx={(theme) => ({
+          [theme.breakpoints.up('md')]: {
+            padding: '3rem 0',
+          },
+          [theme.breakpoints.down('md')]: {
+            padding: '1.25rem 0',
+          },
+        })}
+      >
+        <Grid item xs={12} md={6} lg={4}>
+          <Typography variant="h3" component="h1" gutterBottom>
+            {t('home:title')}
           </Typography>
-
-          <Typography variant="body1" gutterBottom>
-            {t('common:app-description')}
+          <Typography variant="h5" component="h2" gutterBottom>
+            {t('home:description')}
           </Typography>
-
-          {localeOptions}
-        </Box>
-      </Container>
+          <Stack mt={3} spacing={2} alignItems="center">
+            <Button
+              to="/editor"
+              variant="contained"
+              color="secondary"
+              size="large"
+              component={NextLinkComposed}
+            >
+              {t('home:button-go-to-editor')}
+            </Button>
+            <Button
+              to="/about"
+              variant="outlined"
+              color="primary"
+              size="large"
+              component={NextLinkComposed}
+            >
+              {t('home:button-go-to-about')}
+            </Button>
+          </Stack>
+        </Grid>
+        <Grid item xs={12} md={6} lg={4}>
+          <Image
+            src="https://dummyimage.com/400x600/cfcfcf/fff.jpg"
+            alt="Tablab"
+            width={400}
+            height={600}
+          />
+        </Grid>
+      </Grid>
     </Layout>
   );
 };
@@ -50,7 +75,7 @@ export default Home;
 export const getStaticProps: GetStaticProps = async (context) => {
   return {
     props: {
-      ...(await serverSideTranslations(context.locale || '', ['common', 'layout'])),
+      ...(await serverSideTranslations(context.locale || '', ['common', 'home', 'layout'])),
     },
   };
 };

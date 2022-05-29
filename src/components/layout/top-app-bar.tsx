@@ -1,3 +1,4 @@
+import BrandTypography from '@components/brand-typography';
 import { NextLinkComposed } from '@components/next-link-composed';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import TranslateIcon from '@mui/icons-material/Translate';
@@ -10,7 +11,6 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
-import Typography from '@mui/material/Typography';
 import { useTranslation } from 'next-i18next';
 import { FC, useState } from 'react';
 
@@ -52,9 +52,9 @@ const TopAppBar: FC<TopAppBarProps> = ({ showMenu = false, currentPath, currentL
         })}
       >
         <MuiLink color="inherit" underline="none" component={NextLinkComposed} to="/">
-          <Typography variant="h5" noWrap>
+          <BrandTypography variant="h4" noWrap>
             Tablab
-          </Typography>
+          </BrandTypography>
         </MuiLink>
 
         {showMenu && (
@@ -73,6 +73,16 @@ const TopAppBar: FC<TopAppBarProps> = ({ showMenu = false, currentPath, currentL
               </Button>
 
               <Button
+                sx={{ opacity: currentPath === '/editor' ? HIGHLIGHT_OPACITY : LOWLIGHT_OPACITY }}
+                color="inherit"
+                component={NextLinkComposed}
+                to="/editor"
+                aria-label={t('navigation.editorLink.descriptiveLabel')}
+              >
+                {t('navigation.editorLink.shortLabel')}
+              </Button>
+
+              <Button
                 sx={{ opacity: currentPath === '/about' ? HIGHLIGHT_OPACITY : LOWLIGHT_OPACITY }}
                 color="inherit"
                 component={NextLinkComposed}
@@ -84,6 +94,7 @@ const TopAppBar: FC<TopAppBarProps> = ({ showMenu = false, currentPath, currentL
 
               <Tooltip title={t<string>('navigation.gitHubRepositoryLink.descriptiveLabel')} arrow>
                 <IconButton
+                  sx={{ marginLeft: '1rem' }}
                   color="inherit"
                   target="_blank"
                   rel="noreferrer"

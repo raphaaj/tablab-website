@@ -4,9 +4,13 @@
       "shortLabel": "Home",
       "descriptiveLabel": "Go to homepage"
     },
+    "editorLink": {
+      "shortLabel": "Editor",
+      "descriptiveLabel": "Go to editor"
+    },
     "aboutLink": {
       "shortLabel": "About",
-      "descriptiveLabel": "About"
+      "descriptiveLabel": "Learn more"
     },
     "gitHubRepositoryLink": {
       "shortLabel": "GitHub repository",

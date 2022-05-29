@@ -1,4 +1,5 @@
 import { NextLinkComposed } from '@components/next-link-composed';
+import CreateIcon from '@mui/icons-material/Create';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import GitHubIcon from '@mui/icons-material/GitHub';
@@ -75,6 +76,18 @@ const BottomAppBar: FC<BottomAppBarProps> = ({ currentPath, currentLocale }) => 
               aria-label={t('navigation.homeLink.descriptiveLabel')}
             >
               <HomeIcon />
+            </IconButton>
+          </Tooltip>
+
+          <Tooltip title={t<string>('navigation.editorLink.shortLabel')} arrow>
+            <IconButton
+              sx={{ opacity: currentPath === '/editor' ? HIGHLIGHT_OPACITY : LOWLIGHT_OPACITY }}
+              color="inherit"
+              component={NextLinkComposed}
+              to="/editor"
+              aria-label={t('navigation.editorLink.descriptiveLabel')}
+            >
+              <CreateIcon />
             </IconButton>
           </Tooltip>
 
