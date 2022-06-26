@@ -1,3 +1,31 @@
 {
-  "name": "Editor"
+  "instructions-form": {
+    "fields": {
+      "instructions-input": {
+        "label": "Instruções"
+      },
+      "title-input": {
+        "label": "Título"
+      },
+      "observations-input": {
+        "label": "Observações"
+      },
+      "number-of-strings-input": {
+        "label": "Número de cordas"
+      },
+      "initial-spacing-input": {
+        "label": "Espaçamento inicial"
+      }
+    },
+    "controls": {
+      "advanced-options-exibition": {
+        "show-label": "Exibir $t(instructions-form.controls.advanced-options-exibition.label)",
+        "hide-label": "Ocultar $t(instructions-form.controls.advanced-options-exibition.label)",
+        "label": "opções avançadas"
+      },
+      "write-tablature": {
+        "label": "Escrever tablatura"
+      }
+    }
+  }
 }

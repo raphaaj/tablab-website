@@ -1,32 +1,39 @@
-import {
-  createTheme as createMuiTheme,
-  PaletteOptions,
-  Theme,
-  responsiveFontSizes,
-} from '@mui/material/styles';
-import { enUS, Localization, ptBR } from '@mui/material/locale';
 import { lime, red } from '@mui/material/colors';
+import { enUS, Localization, ptBR } from '@mui/material/locale';
+import { createTheme as createMuiTheme, responsiveFontSizes, Theme } from '@mui/material/styles';
 
-const localeToLocalizationMap = new Map<string, Localization>([
+const LOCALE_TO_LOCALIZATION_MAP = new Map<string, Localization>([
   ['en-US', enUS],
   ['pt-BR', ptBR],
 ]);
 
-const palette: PaletteOptions = {
+const COLOR_PRIMARY_MAIN = red[900];
+const COLOR_SECONDARY_MAIN = lime[500];
+
+const FONT_FAMILY_DEFAULT = ['"Montserrat"', 'sans-serif'].join(',');
+const FONT_FAMILY_MONOSPACE = ['"JetBrains Mono"', 'monospace'].join(',');
+const FONT_FAMILY_BRAND = ['"Gloria Hallelujah"', 'cursive'].join(',');
+
+const palette = {
   primary: {
-    main: red[900],
+    main: COLOR_PRIMARY_MAIN,
   },
   secondary: {
-    main: lime[500],
+    main: COLOR_SECONDARY_MAIN,
   },
 };
 
 const typography = {
-  fontFamily: ['"Montserrat"', 'sans-serif'].join(','),
+  fontFamily: FONT_FAMILY_DEFAULT,
+  fontFamilies: {
+    default: FONT_FAMILY_DEFAULT,
+    monospace: FONT_FAMILY_MONOSPACE,
+    brand: FONT_FAMILY_BRAND,
+  },
 };
 
 export default function createTheme(locale = ''): Theme {
-  let localization = localeToLocalizationMap.get(locale);
+  let localization = LOCALE_TO_LOCALIZATION_MAP.get(locale);
   if (!localization) localization = enUS;
 
   let theme = createMuiTheme({ palette, typography }, localization);

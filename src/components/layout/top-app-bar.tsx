@@ -1,5 +1,5 @@
-import BrandTypography from '@components/brand-typography';
 import { NextLinkComposed } from '@components/next-link-composed';
+import TypographyFontBrand from '@components/typography-font-brand';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import TranslateIcon from '@mui/icons-material/Translate';
 import AppBar from '@mui/material/AppBar';
@@ -52,9 +52,9 @@ const TopAppBar: FC<TopAppBarProps> = ({ showMenu = false, currentPath, currentL
         })}
       >
         <MuiLink color="inherit" underline="none" component={NextLinkComposed} to="/">
-          <BrandTypography variant="h4" noWrap>
+          <TypographyFontBrand variant="h4" noWrap>
             Tablab
-          </BrandTypography>
+          </TypographyFontBrand>
         </MuiLink>
 
         {showMenu && (

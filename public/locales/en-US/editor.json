@@ -1,3 +1,31 @@
 {
-  "name": "Editor"
+  "instructions-form": {
+    "fields": {
+      "instructions-input": {
+        "label": "Instructions"
+      },
+      "title-input": {
+        "label": "Title"
+      },
+      "observations-input": {
+        "label": "Observations"
+      },
+      "number-of-strings-input": {
+        "label": "Number of strings"
+      },
+      "initial-spacing-input": {
+        "label": "Initial spacing"
+      }
+    },
+    "controls": {
+      "advanced-options-exibition": {
+        "show-label": "Show $t(instructions-form.controls.advanced-options-exibition.label)",
+        "hide-label": "Hide $t(instructions-form.controls.advanced-options-exibition.label)",
+        "label": "advanced options"
+      },
+      "write-tablature": {
+        "label": "Write tablature"
+      }
+    }
+  }
 }

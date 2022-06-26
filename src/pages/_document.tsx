@@ -55,6 +55,10 @@ export default class MyDocument extends Document {
             rel="stylesheet"
             href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap"
           />
+          <link
+            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap"
+            rel="stylesheet"
+          ></link>
           <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
           {(this.props as any).emotionStyleTags}
         </Head>

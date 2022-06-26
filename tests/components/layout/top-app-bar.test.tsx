@@ -1,4 +1,6 @@
 import TopAppBar, { HIGHLIGHT_OPACITY, LOWLIGHT_OPACITY } from '@components/layout/top-app-bar';
+import { ThemeProvider } from '@mui/material/styles';
+import { createThemeMock } from '@test-utils/create-theme-mock';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import nextI18nextConfig from 'next-i18next.config';
@@ -12,9 +14,15 @@ jest.mock('react-i18next', () => ({
   },
 }));
 
+const themeMock = createThemeMock();
+
 describe(`${TopAppBar.name}`, () => {
   it('should render the tablab brand name as a link to the home page', () => {
-    render(<TopAppBar currentPath="/" currentLocale="en-US" />);
+    render(
+      <ThemeProvider theme={themeMock}>
+        <TopAppBar currentPath="/" currentLocale="en-US" />
+      </ThemeProvider>
+    );
 
     const tablabBrandLink = screen.getByRole('link', { name: 'Tablab' });
 
@@ -24,7 +32,11 @@ describe(`${TopAppBar.name}`, () => {
 
   describe('menu', () => {
     it('should not render the menu if the showMenu attribute is not set', () => {
-      render(<TopAppBar currentPath="/" currentLocale="en-US" />);
+      render(
+        <ThemeProvider theme={themeMock}>
+          <TopAppBar currentPath="/" currentLocale="en-US" />
+        </ThemeProvider>
+      );
 
       const menu = screen.queryByRole('navigation');
 
@@ -32,7 +44,11 @@ describe(`${TopAppBar.name}`, () => {
     });
 
     it('should render the menu if the showMenu attribute is set', () => {
-      render(<TopAppBar showMenu currentPath="/" currentLocale="en-US" />);
+      render(
+        <ThemeProvider theme={themeMock}>
+          <TopAppBar showMenu currentPath="/" currentLocale="en-US" />
+        </ThemeProvider>
+      );
 
       const menu = screen.queryByRole('navigation');
 
@@ -41,7 +57,11 @@ describe(`${TopAppBar.name}`, () => {
 
     describe('home page link', () => {
       it('should render a highlighted link to the home page when at the home page', () => {
-        render(<TopAppBar showMenu currentPath="/" currentLocale="en-US" />);
+        render(
+          <ThemeProvider theme={themeMock}>
+            <TopAppBar showMenu currentPath="/" currentLocale="en-US" />
+          </ThemeProvider>
+        );
 
         const homePageLink = screen.getByRole('link', {
           name: 'navigation.homeLink.descriptiveLabel',
@@ -54,7 +74,11 @@ describe(`${TopAppBar.name}`, () => {
       });
 
       it('should render a lowlighted link to the home page when not at the home page', () => {
-        render(<TopAppBar showMenu currentPath="/other" currentLocale="en-US" />);
+        render(
+          <ThemeProvider theme={themeMock}>
+            <TopAppBar showMenu currentPath="/other" currentLocale="en-US" />
+          </ThemeProvider>
+        );
 
         const homePageLink = screen.getByRole('link', {
           name: 'navigation.homeLink.descriptiveLabel',
@@ -69,7 +93,11 @@ describe(`${TopAppBar.name}`, () => {
 
     describe('editor page link', () => {
       it('should render a highlighted link to the editor page when at the editor page', () => {
-        render(<TopAppBar showMenu currentPath="/editor" currentLocale="en-US" />);
+        render(
+          <ThemeProvider theme={themeMock}>
+            <TopAppBar showMenu currentPath="/editor" currentLocale="en-US" />
+          </ThemeProvider>
+        );
 
         const editorPageLink = screen.getByRole('link', {
           name: 'navigation.editorLink.descriptiveLabel',
@@ -82,7 +110,11 @@ describe(`${TopAppBar.name}`, () => {
       });
 
       it('should render a lowlighted link to the editor page when not at the editor page', () => {
-        render(<TopAppBar showMenu currentPath="/other" currentLocale="en-US" />);
+        render(
+          <ThemeProvider theme={themeMock}>
+            <TopAppBar showMenu currentPath="/other" currentLocale="en-US" />
+          </ThemeProvider>
+        );
 
         const editorPageLink = screen.getByRole('link', {
           name: 'navigation.editorLink.descriptiveLabel',
@@ -97,7 +129,11 @@ describe(`${TopAppBar.name}`, () => {
 
     describe('about page link', () => {
       it('should render a highlighted link to the about page when at the about page', () => {
-        render(<TopAppBar showMenu currentPath="/about" currentLocale="en-US" />);
+        render(
+          <ThemeProvider theme={themeMock}>
+            <TopAppBar showMenu currentPath="/about" currentLocale="en-US" />
+          </ThemeProvider>
+        );
 
         const aboutPageLink = screen.getByRole('link', {
           name: 'navigation.aboutLink.descriptiveLabel',
@@ -110,7 +146,11 @@ describe(`${TopAppBar.name}`, () => {
       });
 
       it('should render a lowlighted link to the about page when not at the about page', () => {
-        render(<TopAppBar showMenu currentPath="/other" currentLocale="en-US" />);
+        render(
+          <ThemeProvider theme={themeMock}>
+            <TopAppBar showMenu currentPath="/other" currentLocale="en-US" />
+          </ThemeProvider>
+        );
 
         const aboutPageLink = screen.getByRole('link', {
           name: 'navigation.aboutLink.descriptiveLabel',
@@ -125,7 +165,11 @@ describe(`${TopAppBar.name}`, () => {
 
     describe(`project's repository link`, () => {
       it(`should render a link to the project's repository on github`, () => {
-        render(<TopAppBar showMenu currentPath="/" currentLocale="en-US" />);
+        render(
+          <ThemeProvider theme={themeMock}>
+            <TopAppBar showMenu currentPath="/" currentLocale="en-US" />
+          </ThemeProvider>
+        );
 
         const projectRepositoryLink = screen.getByRole('link', {
           name: 'navigation.gitHubRepositoryLink.descriptiveLabel',
@@ -140,7 +184,11 @@ describe(`${TopAppBar.name}`, () => {
       });
 
       it(`should render a descriptive tooltip when the project's repository link is hovered`, async () => {
-        render(<TopAppBar showMenu currentPath="/" currentLocale="en-US" />);
+        render(
+          <ThemeProvider theme={themeMock}>
+            <TopAppBar showMenu currentPath="/" currentLocale="en-US" />
+          </ThemeProvider>
+        );
 
         let projectRepositoryLinkTooltip = screen.queryByRole('tooltip', {
           name: 'navigation.gitHubRepositoryLink.descriptiveLabel',
@@ -167,7 +215,11 @@ describe(`${TopAppBar.name}`, () => {
 
     describe('language menu control', () => {
       it('should render a button to access the language menu', () => {
-        render(<TopAppBar showMenu currentPath="/" currentLocale="en-US" />);
+        render(
+          <ThemeProvider theme={themeMock}>
+            <TopAppBar showMenu currentPath="/" currentLocale="en-US" />
+          </ThemeProvider>
+        );
 
         const languageMenuButton = screen.getByRole('button', {
           name: 'options.language.descriptiveLabel',
@@ -177,7 +229,11 @@ describe(`${TopAppBar.name}`, () => {
       });
 
       it('should render a descriptive tooltip when the language menu button control is hovered', async () => {
-        render(<TopAppBar showMenu currentPath="/" currentLocale="en-US" />);
+        render(
+          <ThemeProvider theme={themeMock}>
+            <TopAppBar showMenu currentPath="/" currentLocale="en-US" />
+          </ThemeProvider>
+        );
 
         let languageMenuButtonTooltip = screen.queryByRole('tooltip', {
           name: 'options.language.descriptiveLabel',
@@ -200,7 +256,11 @@ describe(`${TopAppBar.name}`, () => {
       });
 
       it('should launch the language options menu when the language menu button is clicked', async () => {
-        render(<TopAppBar showMenu currentPath="/" currentLocale="en-US" />);
+        render(
+          <ThemeProvider theme={themeMock}>
+            <TopAppBar showMenu currentPath="/" currentLocale="en-US" />
+          </ThemeProvider>
+        );
 
         let languageMenu = screen.queryByRole('menu');
         expect(languageMenu).not.toBeInTheDocument();
@@ -218,7 +278,11 @@ describe(`${TopAppBar.name}`, () => {
       });
 
       it('should close the language options menu when it is closed', async () => {
-        render(<TopAppBar showMenu currentPath="/" currentLocale="en-US" />);
+        render(
+          <ThemeProvider theme={themeMock}>
+            <TopAppBar showMenu currentPath="/" currentLocale="en-US" />
+          </ThemeProvider>
+        );
 
         const languageMenuButton = screen.getByRole('button', {
           name: 'options.language.descriptiveLabel',
@@ -240,7 +304,11 @@ describe(`${TopAppBar.name}`, () => {
         'should have a language option for each supported locale (%s)',
         async (supportedLocale) => {
           const currentPath = '/some/path';
-          render(<TopAppBar showMenu currentPath={currentPath} currentLocale="en-US" />);
+          render(
+            <ThemeProvider theme={themeMock}>
+              <TopAppBar showMenu currentPath={currentPath} currentLocale="en-US" />
+            </ThemeProvider>
+          );
 
           const languageMenuButton = screen.getByRole('button', {
             name: 'options.language.descriptiveLabel',

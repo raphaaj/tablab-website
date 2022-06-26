@@ -1,4 +1,4 @@
-import { TabDTO } from '@services/tab/tab-dto';
+import { TabDTO } from '@services/server/tab/tab-dto';
 import { TabCreationResponse } from '@view-models/tab/tab-creation-response';
 
 describe(TabCreationResponse.name, () => {

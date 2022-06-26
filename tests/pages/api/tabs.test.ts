@@ -1,8 +1,8 @@
 import { ErrorCode } from '@enums/error-code';
 import { createTabsHandler } from '@pages/api/tabs';
-import { TabCreationDTO } from '@services/tab/tab-creation-dto';
-import { TabDTO } from '@services/tab/tab-dto';
-import { BaseTabService, TabCreationResultDTO } from '@services/tab/tab-service';
+import { TabCreationDTO } from '@services/server/tab/tab-creation-dto';
+import { TabDTO } from '@services/server/tab/tab-dto';
+import { BaseTabService, TabCreationResultDTO } from '@services/server/tab/tab-service';
 import { getTestFailedWriteResult } from '@test-utils/failed-write-result-generator';
 import { NextApiRequest, NextApiResponse } from 'next';
 import httpMocks, { RequestMethod } from 'node-mocks-http';
