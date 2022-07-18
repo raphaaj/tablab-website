@@ -27,5 +27,8 @@
         "label": "Escrever tablatura"
       }
     }
+  },
+  "tab-creation": {
+    "unexpected-error": "Falha ao criar tablatura. Por favor, tente novamente em alguns minutos."
   }
 }

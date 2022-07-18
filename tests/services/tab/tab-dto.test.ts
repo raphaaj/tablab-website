@@ -1,4 +1,4 @@
-import { TabDTO } from '@services/server/tab/tab-dto';
+import { TabDTO } from '@services/tab/tab-dto';
 
 describe(TabDTO.name, () => {
   describe('constructor', () => {

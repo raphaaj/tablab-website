@@ -18,10 +18,11 @@
     "paths": {
       "@components/*": ["src/components/*"],
       "@enums/*": ["src/enums/*"],
+      "@lib/*": ["src/lib/*"],
+      "@models/*": ["src/models/*"],
       "@pages/*": ["src/pages/*"],
       "@public/*": ["public/*"],
-      "@services/client/*": ["src/services/client/*"],
-      "@services/server/*": ["src/services/server/*"],
+      "@services/*": ["src/services/*"],
       "@styles/*": ["src/styles/*"],
       "@utils/*": ["src/utils/*"],
       "@view-models/*": ["src/view-models/*"],

@@ -27,5 +27,8 @@
         "label": "Write tablature"
       }
     }
+  },
+  "tab-creation": {
+    "unexpected-error": "Failed to create tablature. Please, try again in a fiew minutes."
   }
 }

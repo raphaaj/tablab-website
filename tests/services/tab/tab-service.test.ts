@@ -1,5 +1,5 @@
-import { TabCreationDTO } from '@services/server/tab/tab-creation-dto';
-import { TabService } from '@services/server/tab/tab-service';
+import { TabCreationDTO } from '@services/tab/tab-creation-dto';
+import { TabService } from '@services/tab/tab-service';
 
 describe(TabService.name, () => {
   describe(TabService.prototype.createTab.name, () => {

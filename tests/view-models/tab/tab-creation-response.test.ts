@@ -1,9 +1,11 @@
-import { TabDTO } from '@services/server/tab/tab-dto';
+import { TabDTO } from '@services/tab/tab-dto';
 import { TabCreationResponse } from '@view-models/tab/tab-creation-response';
 
 describe(TabCreationResponse.name, () => {
   describe('constructor', () => {
     it('should create an instance when all the required fields are given', () => {
+      const title: string | null = null;
+      const observations: string | null = null;
       const numberOfStrings = 6;
       const initialSpacing = 1;
       const tabBlockLength = 15;
@@ -11,6 +13,8 @@ describe(TabCreationResponse.name, () => {
       const renderedTab: string[][] = [[]];
 
       const tabCreationResponse = new TabCreationResponse({
+        title,
+        observations,
         numberOfStrings,
         initialSpacing,
         tabBlockLength,
@@ -18,8 +22,8 @@ describe(TabCreationResponse.name, () => {
         renderedTab,
       });
 
-      expect(tabCreationResponse.title).toBe(null);
-      expect(tabCreationResponse.observations).toBe(null);
+      expect(tabCreationResponse.title).toBe(title);
+      expect(tabCreationResponse.observations).toBe(observations);
       expect(tabCreationResponse.numberOfStrings).toBe(numberOfStrings);
       expect(tabCreationResponse.initialSpacing).toBe(initialSpacing);
       expect(tabCreationResponse.tabBlockLength).toBe(tabBlockLength);
@@ -29,6 +33,7 @@ describe(TabCreationResponse.name, () => {
 
     it('should create an instance when the field title is given with all the required fields', () => {
       const title = 'some title';
+      const observations: string | null = null;
       const numberOfStrings = 6;
       const initialSpacing = 1;
       const tabBlockLength = 15;
@@ -37,31 +42,6 @@ describe(TabCreationResponse.name, () => {
 
       const tabCreationResponse = new TabCreationResponse({
         title,
-        numberOfStrings,
-        initialSpacing,
-        tabBlockLength,
-        instructions,
-        renderedTab,
-      });
-
-      expect(tabCreationResponse.title).toBe(title);
-      expect(tabCreationResponse.observations).toBe(null);
-      expect(tabCreationResponse.numberOfStrings).toBe(numberOfStrings);
-      expect(tabCreationResponse.initialSpacing).toBe(initialSpacing);
-      expect(tabCreationResponse.tabBlockLength).toBe(tabBlockLength);
-      expect(tabCreationResponse.instructions).toBe(instructions);
-      expect(tabCreationResponse.renderedTab).toBe(renderedTab);
-    });
-
-    it('should create an instance when the field observations is given with all the required fields', () => {
-      const observations = 'some observations';
-      const numberOfStrings = 6;
-      const initialSpacing = 1;
-      const tabBlockLength = 15;
-      const instructions = '1-0';
-      const renderedTab: string[][] = [[]];
-
-      const tabCreationResponse = new TabCreationResponse({
         observations,
         numberOfStrings,
         initialSpacing,
@@ -70,7 +50,35 @@ describe(TabCreationResponse.name, () => {
         renderedTab,
       });
 
-      expect(tabCreationResponse.title).toBe(null);
+      expect(tabCreationResponse.title).toBe(title);
+      expect(tabCreationResponse.observations).toBe(observations);
+      expect(tabCreationResponse.numberOfStrings).toBe(numberOfStrings);
+      expect(tabCreationResponse.initialSpacing).toBe(initialSpacing);
+      expect(tabCreationResponse.tabBlockLength).toBe(tabBlockLength);
+      expect(tabCreationResponse.instructions).toBe(instructions);
+      expect(tabCreationResponse.renderedTab).toBe(renderedTab);
+    });
+
+    it('should create an instance when the field observations is given with all the required fields', () => {
+      const title: string | null = null;
+      const observations = 'some observations';
+      const numberOfStrings = 6;
+      const initialSpacing = 1;
+      const tabBlockLength = 15;
+      const instructions = '1-0';
+      const renderedTab: string[][] = [[]];
+
+      const tabCreationResponse = new TabCreationResponse({
+        title,
+        observations,
+        numberOfStrings,
+        initialSpacing,
+        tabBlockLength,
+        instructions,
+        renderedTab,
+      });
+
+      expect(tabCreationResponse.title).toBe(title);
       expect(tabCreationResponse.observations).toBe(observations);
       expect(tabCreationResponse.numberOfStrings).toBe(numberOfStrings);
       expect(tabCreationResponse.initialSpacing).toBe(initialSpacing);

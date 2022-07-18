@@ -1,5 +1,5 @@
-import { TabCreationDTO } from '@services/server/tab/tab-creation-dto';
-import { TabDTO } from '@services/server/tab/tab-dto';
+import { TabCreationDTO } from '@services/tab/tab-creation-dto';
+import { TabDTO } from '@services/tab/tab-dto';
 import { FailedWriteResult, MethodInstruction, Parser, Tab } from 'tablab';
 
 export abstract class BaseTabService {

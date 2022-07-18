@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 
-import { TabDTO } from '@services/server/tab/tab-dto';
+import { TabDTO } from '@services/tab/tab-dto';
 
 export class TabCreationResponse {
   public static createFromTabDTO(tab: TabDTO): TabCreationResponse {
@@ -15,8 +15,8 @@ export class TabCreationResponse {
     });
   }
 
-  public title?: string | null;
-  public observations?: string | null;
+  public title: string | null;
+  public observations: string | null;
   public numberOfStrings: number;
   public initialSpacing: number;
   public tabBlockLength: number;

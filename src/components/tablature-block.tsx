@@ -6,27 +6,31 @@ import TableContainer from '@mui/material/TableContainer';
 import TableRow from '@mui/material/TableRow';
 import { FC } from 'react';
 
-type TabBlockProps = {
+export type TablatureBlockProps = {
+  block: string[];
   label: string;
-  tabBlock: string[];
 };
 
-const TabBlock: FC<TabBlockProps> = (props) => {
+const TablatureBlock: FC<TablatureBlockProps> = (props) => {
+  const tabBlockRowPrefixLength = Math.trunc(1 + (props.block.length - 2) / 10) + 2;
+
   return (
-    <TableContainer sx={{ marginBottom: '1.5rem' }}>
+    <TableContainer sx={{ marginBottom: '1rem' }}>
       <Table aria-label={props.label} size="small">
         <TableBody>
-          {props.tabBlock.map((tabBlockRow, tabBlockRowIndex) => (
+          {props.block.map((tabBlockRow, tabBlockRowIndex) => (
             <TableRow key={tabBlockRowIndex}>
               <TableCell
                 component="th"
                 scope="row"
                 sx={{
-                  borderBottom: tabBlockRowIndex === props.tabBlock.length - 1 ? 'none' : undefined,
+                  borderBottom: tabBlockRowIndex === props.block.length - 1 ? 'none' : undefined,
                 }}
               >
                 <TypographyFontMonospace variant="body1" component="pre">
-                  {`${tabBlockRowIndex + 1}) `}
+                  {tabBlockRowIndex === 0 || tabBlockRowIndex === props.block.length - 1
+                    ? ''.padStart(tabBlockRowPrefixLength, ' ')
+                    : `${tabBlockRowIndex}) `.padStart(tabBlockRowPrefixLength, ' ')}
                   {tabBlockRow}
                 </TypographyFontMonospace>
               </TableCell>
@@ -38,4 +42,4 @@ const TabBlock: FC<TabBlockProps> = (props) => {
   );
 };
 
-export default TabBlock;
+export default TablatureBlock;

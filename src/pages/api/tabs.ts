@@ -1,5 +1,5 @@
-import { TabCreationDTO } from '@services/server/tab/tab-creation-dto';
-import { BaseTabService, TabService } from '@services/server/tab/tab-service';
+import { TabCreationDTO } from '@services/tab/tab-creation-dto';
+import { BaseTabService, TabService } from '@services/tab/tab-service';
 import { RequestUtils } from '@utils/request-utils';
 import { ServerSideTranslationUtils } from '@utils/server-side-translation-utils';
 import { InternalError } from '@view-models/error/internal-error';

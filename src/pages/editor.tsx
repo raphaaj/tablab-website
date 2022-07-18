@@ -1,8 +1,13 @@
 import Layout from '@components/layout/layout';
+import Tablature from '@components/tablature';
 import TextFieldFontMonospace from '@components/text-field-font-monospace';
+import { TabLib } from '@lib/tab/tab-lib';
+import { TabCreationError } from '@models/tab/tab-creation-error';
 import CreateIcon from '@mui/icons-material/Create';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
@@ -13,6 +18,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 
 export const DEFAULT_NUMBER_OF_STRINGS = 6;
@@ -36,42 +42,91 @@ export const OPTIONS_FOR_INITIAL_SPACING = Array.from(
   (_, i) => i + MIN_INITIAL_SPACING_OPTION
 );
 
+type Tablature = {
+  blocks: string[][];
+  observations: string | null;
+  title: string | null;
+};
+
+/**
+ * TODO: exibição de erros de renderização (alert?)
+ * TODO: exibição de erros inesperados (alert + lista?)
+ * TODO: exibição de esqueleto de tablatura ao aguardar criação da tablatura
+ * TODO: exibição de mensagens de validação no formulário
+ */
+
 export default function Editor() {
+  const router = useRouter();
   const { t } = useTranslation('editor');
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
-  const [instructions, setInstructions] = useState('');
-  const [title, setTitle] = useState('');
-  const [observations, setObservations] = useState('');
-  const [numberOfStrings, setNumberOfStrings] = useState(DEFAULT_NUMBER_OF_STRINGS);
-  const [initialSpacing, setInitialSpacing] = useState(DEFAULT_INITIAL_SPACING);
+  const [instructionsInputValue, setInstructionsInputValue] = useState('');
+  const [titleInputValue, setTitleInputValue] = useState('');
+  const [observationsInputValue, setObservationsInputValue] = useState('');
+  const [numberOfStringsInputValue, setNumberOfStringsInputValue] =
+    useState(DEFAULT_NUMBER_OF_STRINGS);
+  const [initialSpacingInputValue, setInitialSpacingInputValue] = useState(DEFAULT_INITIAL_SPACING);
+
+  const [isCreatingTab, setIsCreatingTab] = useState(false);
+  const [createdTab, setCreatedTab] = useState<Tablature | null>(null);
 
   const toggleShowAdvancedOptions = () => {
     setShowAdvancedOptions(!showAdvancedOptions);
   };
 
-  const handleInstructionsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInstructions(event.target.value);
+  const handleInstructionsInputValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInstructionsInputValue(event.target.value);
   };
 
-  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(event.target.value);
+  const handleTitleInputValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitleInputValue(event.target.value);
   };
 
-  const handleObservationsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setObservations(event.target.value);
+  const handleObservationsInputValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setObservationsInputValue(event.target.value);
   };
 
-  const handleNumberOfStringsChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setNumberOfStrings(Number(event.target.value));
+  const handleNumberOfStringsInputValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setNumberOfStringsInputValue(Number(event.target.value));
   };
 
-  const handleInitialSpacingChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setInitialSpacing(Number(event.target.value));
+  const handleInitialSpacingInputValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInitialSpacingInputValue(Number(event.target.value));
   };
 
-  const handleSubmission: React.FormEventHandler = async (event) => {
+  const handleTabCreation: React.FormEventHandler = async (event) => {
     event.preventDefault();
+
+    setIsCreatingTab(true);
+    setCreatedTab(null);
+
+    try {
+      const tabCreationResult = await TabLib.createTab(
+        {
+          initialSpacing: initialSpacingInputValue,
+          instructions: instructionsInputValue.trim(),
+          numberOfStrings: numberOfStringsInputValue,
+          tabBlockLength: 40, // TODO: adapt according to viewport width
+          observations: observationsInputValue.trim(),
+          title: titleInputValue.trim(),
+        },
+        { acceptedLanguage: router.locale }
+      );
+
+      setCreatedTab({
+        title: tabCreationResult.title,
+        observations: tabCreationResult.observations,
+        blocks: tabCreationResult.renderedTab,
+      });
+    } catch (error) {
+      if (error instanceof TabCreationError) {
+        // handle renderization error feedback
+      } else {
+        // handle unexpected error feedback
+      }
+    } finally {
+      setIsCreatingTab(false);
+    }
   };
 
   return (
@@ -89,118 +144,148 @@ export default function Editor() {
         })}
       >
         <Grid item xs={12} md={10} lg={8}>
-          <form onSubmit={handleSubmission}>
-            <TextFieldFontMonospace
-              id="instructions-input"
-              label={t('instructions-form.fields.instructions-input.label')}
-              multiline
-              fullWidth
-              required
-              minRows={4}
-              value={instructions}
-              onChange={handleInstructionsChange}
-              variant="filled"
-              margin="normal"
-            />
-
-            <Collapse in={showAdvancedOptions} timeout="auto" unmountOnExit>
-              <TextField
-                id="title-input"
-                label={t('instructions-form.fields.title-input.label')}
-                fullWidth
-                value={title}
-                onChange={handleTitleChange}
-                variant="filled"
-                margin="normal"
-              />
-
-              <TextField
-                id="observations-input"
-                label={t('instructions-form.fields.observations-input.label')}
+          <Box mb={3}>
+            <form onSubmit={handleTabCreation}>
+              <TextFieldFontMonospace
+                id="instructions-input"
+                label={t('instructions-form.fields.instructions-input.label')}
                 multiline
                 fullWidth
-                value={observations}
-                onChange={handleObservationsChange}
+                required
+                minRows={4}
+                value={instructionsInputValue}
+                onChange={handleInstructionsInputValueChange}
                 variant="filled"
                 margin="normal"
+                inputProps={{
+                  readOnly: isCreatingTab,
+                }}
               />
 
-              <Grid container columnSpacing={2}>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    id="number-of-strings-input"
-                    select
-                    fullWidth
-                    required
-                    label={t('instructions-form.fields.number-of-strings-input.label')}
-                    value={numberOfStrings}
-                    onChange={handleNumberOfStringsChange}
-                    variant="filled"
-                    margin="normal"
-                  >
-                    {OPTIONS_FOR_NUMBER_OF_STRING.map((option) => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
+              <Collapse in={showAdvancedOptions} timeout="auto" unmountOnExit>
+                <TextField
+                  id="title-input"
+                  label={t('instructions-form.fields.title-input.label')}
+                  fullWidth
+                  value={titleInputValue}
+                  onChange={handleTitleInputValueChange}
+                  variant="filled"
+                  margin="normal"
+                  inputProps={{
+                    readOnly: isCreatingTab,
+                  }}
+                />
 
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    id="initial-spacing-input"
-                    select
-                    fullWidth
-                    required
-                    label={t('instructions-form.fields.initial-spacing-input.label')}
-                    value={initialSpacing}
-                    onChange={handleInitialSpacingChange}
-                    variant="filled"
-                    margin="normal"
-                  >
-                    {OPTIONS_FOR_INITIAL_SPACING.map((option) => (
-                      <MenuItem key={option} value={option}>
-                        {option}
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                </Grid>
-              </Grid>
-            </Collapse>
+                <TextField
+                  id="observations-input"
+                  label={t('instructions-form.fields.observations-input.label')}
+                  multiline
+                  fullWidth
+                  value={observationsInputValue}
+                  onChange={handleObservationsInputValueChange}
+                  variant="filled"
+                  margin="normal"
+                  inputProps={{
+                    readOnly: isCreatingTab,
+                  }}
+                />
 
-            <Stack direction="row" justifyContent="flex-end" spacing={1}>
-              <Tooltip
-                title={
-                  showAdvancedOptions
-                    ? t('instructions-form.controls.advanced-options-exibition.hide-label')
-                    : t('instructions-form.controls.advanced-options-exibition.show-label')
-                }
-                arrow
-              >
-                <IconButton
-                  onClick={toggleShowAdvancedOptions}
-                  aria-expanded={showAdvancedOptions}
-                  aria-label={
+                <Grid container columnSpacing={2}>
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      id="number-of-strings-input"
+                      select
+                      fullWidth
+                      required
+                      label={t('instructions-form.fields.number-of-strings-input.label')}
+                      value={numberOfStringsInputValue}
+                      onChange={handleNumberOfStringsInputValueChange}
+                      variant="filled"
+                      margin="normal"
+                      SelectProps={{
+                        readOnly: isCreatingTab,
+                      }}
+                    >
+                      {OPTIONS_FOR_NUMBER_OF_STRING.map((option) => (
+                        <MenuItem key={option} value={option}>
+                          {option}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+
+                  <Grid item xs={12} md={6}>
+                    <TextField
+                      id="initial-spacing-input"
+                      select
+                      fullWidth
+                      required
+                      label={t('instructions-form.fields.initial-spacing-input.label')}
+                      value={initialSpacingInputValue}
+                      onChange={handleInitialSpacingInputValueChange}
+                      variant="filled"
+                      margin="normal"
+                      SelectProps={{
+                        readOnly: isCreatingTab,
+                      }}
+                    >
+                      {OPTIONS_FOR_INITIAL_SPACING.map((option) => (
+                        <MenuItem key={option} value={option}>
+                          {option}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Grid>
+                </Grid>
+              </Collapse>
+
+              <Stack direction="row" justifyContent="flex-end" spacing={1}>
+                <Tooltip
+                  title={
                     showAdvancedOptions
                       ? t('instructions-form.controls.advanced-options-exibition.hide-label')
                       : t('instructions-form.controls.advanced-options-exibition.show-label')
                   }
+                  arrow
                 >
-                  {showAdvancedOptions ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                </IconButton>
-              </Tooltip>
+                  <IconButton
+                    onClick={toggleShowAdvancedOptions}
+                    aria-expanded={showAdvancedOptions}
+                    aria-label={
+                      showAdvancedOptions
+                        ? t('instructions-form.controls.advanced-options-exibition.hide-label')
+                        : t('instructions-form.controls.advanced-options-exibition.show-label')
+                    }
+                  >
+                    {showAdvancedOptions ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  </IconButton>
+                </Tooltip>
 
-              <Tooltip title={t('instructions-form.controls.write-tablature.label')} arrow>
-                <IconButton
-                  aria-label={t('instructions-form.controls.write-tablature.label')}
-                  color="primary"
-                  type="submit"
-                >
-                  <CreateIcon />
-                </IconButton>
-              </Tooltip>
-            </Stack>
-          </form>
+                {isCreatingTab ? (
+                  <CircularProgress sx={{ margin: 0, padding: '0.5rem' }} />
+                ) : (
+                  <Tooltip title={t('instructions-form.controls.write-tablature.label')} arrow>
+                    <IconButton
+                      aria-label={t('instructions-form.controls.write-tablature.label')}
+                      color="primary"
+                      type="submit"
+                      disabled={isCreatingTab}
+                    >
+                      <CreateIcon />
+                    </IconButton>
+                  </Tooltip>
+                )}
+              </Stack>
+            </form>
+          </Box>
+
+          {!isCreatingTab && createdTab && (
+            <Tablature
+              blocks={createdTab.blocks}
+              observations={createdTab.observations}
+              title={createdTab.title}
+            />
+          )}
         </Grid>
       </Grid>
     </Layout>
@@ -210,7 +295,12 @@ export default function Editor() {
 export const getStaticProps: GetStaticProps = async (context) => {
   return {
     props: {
-      ...(await serverSideTranslations(context.locale || '', ['common', 'editor', 'layout'])),
+      ...(await serverSideTranslations(context.locale || '', [
+        'common',
+        'editor',
+        'layout',
+        'tablature',
+      ])),
     },
   };
 };
