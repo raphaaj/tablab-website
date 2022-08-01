@@ -1,11 +1,16 @@
+import { InvalidInstruction } from '@components/invalid-instruction-feedback';
+import InvalidInstructionsFeedback from '@components/invalid-instructions-feedback';
 import Layout from '@components/layout/layout';
 import Tablature from '@components/tablature';
 import TextFieldFontMonospace from '@components/text-field-font-monospace';
 import { TabLib } from '@lib/tab/tab-lib';
 import { TabCreationError } from '@models/tab/tab-creation-error';
 import CreateIcon from '@mui/icons-material/Create';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
@@ -15,6 +20,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
+import { TabInstructionRenderizationError } from '@view-models/tab/tab-instruction-renderization-error';
 import { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -48,9 +54,26 @@ type Tablature = {
   title: string | null;
 };
 
+function createInvalidInstructionFromRenderizationError(
+  renderizationError: TabInstructionRenderizationError
+): InvalidInstruction {
+  let invalidChildInstructions: InvalidInstruction[] | null = null;
+
+  if (renderizationError.childErrors) {
+    invalidChildInstructions = renderizationError.childErrors.map(
+      createInvalidInstructionFromRenderizationError
+    );
+  }
+
+  return {
+    invalidChildInstructions,
+    instruction: renderizationError.instruction,
+    description: renderizationError.errorMessage as string,
+  };
+}
+
 /**
- * TODO: exibição de erros de renderização (alert?)
- * TODO: exibição de erros inesperados (alert + lista?)
+ * TODO: exibição de erros inesperados (alert ou snackbar)
  * TODO: exibição de esqueleto de tablatura ao aguardar criação da tablatura
  * TODO: exibição de mensagens de validação no formulário
  */
@@ -69,6 +92,7 @@ export default function Editor() {
 
   const [isCreatingTab, setIsCreatingTab] = useState(false);
   const [createdTab, setCreatedTab] = useState<Tablature | null>(null);
+  const [invalidInstructions, setInvalidInstructions] = useState<InvalidInstruction[] | null>(null);
 
   const toggleShowAdvancedOptions = () => {
     setShowAdvancedOptions(!showAdvancedOptions);
@@ -99,6 +123,7 @@ export default function Editor() {
 
     setIsCreatingTab(true);
     setCreatedTab(null);
+    setInvalidInstructions(null);
 
     try {
       const tabCreationResult = await TabLib.createTab(
@@ -119,8 +144,12 @@ export default function Editor() {
         blocks: tabCreationResult.renderedTab,
       });
     } catch (error) {
-      if (error instanceof TabCreationError) {
-        // handle renderization error feedback
+      if (error instanceof TabCreationError && error.renderizationErrors) {
+        const invalidInstructions = error.renderizationErrors.map((renderizationError) =>
+          createInvalidInstructionFromRenderizationError(renderizationError)
+        );
+
+        setInvalidInstructions(invalidInstructions);
       } else {
         // handle unexpected error feedback
       }
@@ -278,6 +307,23 @@ export default function Editor() {
               </Stack>
             </form>
           </Box>
+
+          {!isCreatingTab && invalidInstructions && (
+            <Alert
+              severity="error"
+              icon={false}
+              sx={{ 'width': '100%', '& .MuiAlert-message': { width: '100%' } }}
+            >
+              <AlertTitle sx={{ display: 'flex', mb: 2 }}>
+                <ErrorOutlineIcon sx={{ color: (theme) => theme.palette.error.light, mr: 1 }} />
+                {t('tab-creation.renderization-error')}
+              </AlertTitle>
+
+              <InvalidInstructionsFeedback
+                invalidInstructions={invalidInstructions}
+              ></InvalidInstructionsFeedback>
+            </Alert>
+          )}
 
           {!isCreatingTab && createdTab && (
             <Tablature

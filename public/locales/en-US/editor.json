@@ -29,6 +29,7 @@
     }
   },
   "tab-creation": {
-    "unexpected-error": "Failed to create tablature. Please, try again in a fiew minutes."
+    "renderization-error": "Invalid instructions identified",
+    "unexpected-error": "Failed to create tablature. Please, try again in a few seconds."
   }
 }
