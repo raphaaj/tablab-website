@@ -29,7 +29,14 @@
     }
   },
   "tab-creation": {
-    "renderization-error": "Instruções inválidas identificadas",
-    "unexpected-error": "Falha ao criar tablatura. Por favor, tente novamente em alguns instantes."
+    "errors": {
+      "invalid-instructions": {
+        "title": "Instruções inválidas identificadas"
+      },
+      "general": {
+        "title": "Falha ao criar tablatura",
+        "message": "Por favor, tente novamente em alguns instantes."
+      }
+    }
   }
 }

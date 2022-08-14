@@ -29,7 +29,14 @@
     }
   },
   "tab-creation": {
-    "renderization-error": "Invalid instructions identified",
-    "unexpected-error": "Failed to create tablature. Please, try again in a few seconds."
+    "errors": {
+      "invalid-instructions": {
+        "title": "Invalid instructions identified"
+      },
+      "general": {
+        "title": "Failed to create tablature",
+        "message": "Please, try again in a few seconds."
+      }
+    }
   }
 }

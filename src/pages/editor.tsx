@@ -6,9 +6,9 @@ import TextFieldFontMonospace from '@components/text-field-font-monospace';
 import { TabLib } from '@lib/tab/tab-lib';
 import { TabCreationError } from '@models/tab/tab-creation-error';
 import CreateIcon from '@mui/icons-material/Create';
-import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Box from '@mui/material/Box';
@@ -93,6 +93,7 @@ export default function Editor() {
   const [isCreatingTab, setIsCreatingTab] = useState(false);
   const [createdTab, setCreatedTab] = useState<Tablature | null>(null);
   const [invalidInstructions, setInvalidInstructions] = useState<InvalidInstruction[] | null>(null);
+  const [tabCreationError, setTabCreationError] = useState<unknown | null>(null);
 
   const toggleShowAdvancedOptions = () => {
     setShowAdvancedOptions(!showAdvancedOptions);
@@ -124,6 +125,7 @@ export default function Editor() {
     setIsCreatingTab(true);
     setCreatedTab(null);
     setInvalidInstructions(null);
+    setTabCreationError(null);
 
     try {
       const tabCreationResult = await TabLib.createTab(
@@ -151,7 +153,7 @@ export default function Editor() {
 
         setInvalidInstructions(invalidInstructions);
       } else {
-        // handle unexpected error feedback
+        setTabCreationError(error);
       }
     } finally {
       setIsCreatingTab(false);
@@ -173,45 +175,18 @@ export default function Editor() {
         })}
       >
         <Grid item xs={12} md={10} lg={8}>
-          <Box mb={3}>
-            <form onSubmit={handleTabCreation}>
-              <TextFieldFontMonospace
-                id="instructions-input"
-                label={t('instructions-form.fields.instructions-input.label')}
-                multiline
-                fullWidth
-                required
-                minRows={4}
-                value={instructionsInputValue}
-                onChange={handleInstructionsInputValueChange}
-                variant="filled"
-                margin="normal"
-                inputProps={{
-                  readOnly: isCreatingTab,
-                }}
-              />
-
-              <Collapse in={showAdvancedOptions} timeout="auto" unmountOnExit>
-                <TextField
-                  id="title-input"
-                  label={t('instructions-form.fields.title-input.label')}
-                  fullWidth
-                  value={titleInputValue}
-                  onChange={handleTitleInputValueChange}
-                  variant="filled"
-                  margin="normal"
-                  inputProps={{
-                    readOnly: isCreatingTab,
-                  }}
-                />
-
-                <TextField
-                  id="observations-input"
-                  label={t('instructions-form.fields.observations-input.label')}
+          <>
+            <Box mb={3}>
+              <form onSubmit={handleTabCreation}>
+                <TextFieldFontMonospace
+                  id="instructions-input"
+                  label={t('instructions-form.fields.instructions-input.label')}
                   multiline
                   fullWidth
-                  value={observationsInputValue}
-                  onChange={handleObservationsInputValueChange}
+                  required
+                  minRows={4}
+                  value={instructionsInputValue}
+                  onChange={handleInstructionsInputValueChange}
                   variant="filled"
                   margin="normal"
                   inputProps={{
@@ -219,119 +194,157 @@ export default function Editor() {
                   }}
                 />
 
-                <Grid container columnSpacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      id="number-of-strings-input"
-                      select
-                      fullWidth
-                      required
-                      label={t('instructions-form.fields.number-of-strings-input.label')}
-                      value={numberOfStringsInputValue}
-                      onChange={handleNumberOfStringsInputValueChange}
-                      variant="filled"
-                      margin="normal"
-                      SelectProps={{
-                        readOnly: isCreatingTab,
-                      }}
-                    >
-                      {OPTIONS_FOR_NUMBER_OF_STRING.map((option) => (
-                        <MenuItem key={option} value={option}>
-                          {option}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
+                <Collapse in={showAdvancedOptions} timeout="auto" unmountOnExit>
+                  <TextField
+                    id="title-input"
+                    label={t('instructions-form.fields.title-input.label')}
+                    fullWidth
+                    value={titleInputValue}
+                    onChange={handleTitleInputValueChange}
+                    variant="filled"
+                    margin="normal"
+                    inputProps={{
+                      readOnly: isCreatingTab,
+                    }}
+                  />
 
-                  <Grid item xs={12} md={6}>
-                    <TextField
-                      id="initial-spacing-input"
-                      select
-                      fullWidth
-                      required
-                      label={t('instructions-form.fields.initial-spacing-input.label')}
-                      value={initialSpacingInputValue}
-                      onChange={handleInitialSpacingInputValueChange}
-                      variant="filled"
-                      margin="normal"
-                      SelectProps={{
-                        readOnly: isCreatingTab,
-                      }}
-                    >
-                      {OPTIONS_FOR_INITIAL_SPACING.map((option) => (
-                        <MenuItem key={option} value={option}>
-                          {option}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                </Grid>
-              </Collapse>
+                  <TextField
+                    id="observations-input"
+                    label={t('instructions-form.fields.observations-input.label')}
+                    multiline
+                    fullWidth
+                    value={observationsInputValue}
+                    onChange={handleObservationsInputValueChange}
+                    variant="filled"
+                    margin="normal"
+                    inputProps={{
+                      readOnly: isCreatingTab,
+                    }}
+                  />
 
-              <Stack direction="row" justifyContent="flex-end" spacing={1}>
-                <Tooltip
-                  title={
-                    showAdvancedOptions
-                      ? t('instructions-form.controls.advanced-options-exibition.hide-label')
-                      : t('instructions-form.controls.advanced-options-exibition.show-label')
-                  }
-                  arrow
-                >
-                  <IconButton
-                    onClick={toggleShowAdvancedOptions}
-                    aria-expanded={showAdvancedOptions}
-                    aria-label={
+                  <Grid container columnSpacing={2}>
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        id="number-of-strings-input"
+                        select
+                        fullWidth
+                        required
+                        label={t('instructions-form.fields.number-of-strings-input.label')}
+                        value={numberOfStringsInputValue}
+                        onChange={handleNumberOfStringsInputValueChange}
+                        variant="filled"
+                        margin="normal"
+                        SelectProps={{
+                          readOnly: isCreatingTab,
+                        }}
+                      >
+                        {OPTIONS_FOR_NUMBER_OF_STRING.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
+
+                    <Grid item xs={12} md={6}>
+                      <TextField
+                        id="initial-spacing-input"
+                        select
+                        fullWidth
+                        required
+                        label={t('instructions-form.fields.initial-spacing-input.label')}
+                        value={initialSpacingInputValue}
+                        onChange={handleInitialSpacingInputValueChange}
+                        variant="filled"
+                        margin="normal"
+                        SelectProps={{
+                          readOnly: isCreatingTab,
+                        }}
+                      >
+                        {OPTIONS_FOR_INITIAL_SPACING.map((option) => (
+                          <MenuItem key={option} value={option}>
+                            {option}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
+                  </Grid>
+                </Collapse>
+
+                <Stack direction="row" justifyContent="flex-end" spacing={1}>
+                  <Tooltip
+                    title={
                       showAdvancedOptions
                         ? t('instructions-form.controls.advanced-options-exibition.hide-label')
                         : t('instructions-form.controls.advanced-options-exibition.show-label')
                     }
+                    arrow
                   >
-                    {showAdvancedOptions ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                  </IconButton>
-                </Tooltip>
-
-                {isCreatingTab ? (
-                  <CircularProgress sx={{ margin: 0, padding: '0.5rem' }} />
-                ) : (
-                  <Tooltip title={t('instructions-form.controls.write-tablature.label')} arrow>
                     <IconButton
-                      aria-label={t('instructions-form.controls.write-tablature.label')}
-                      color="primary"
-                      type="submit"
-                      disabled={isCreatingTab}
+                      onClick={toggleShowAdvancedOptions}
+                      aria-expanded={showAdvancedOptions}
+                      aria-label={
+                        showAdvancedOptions
+                          ? t('instructions-form.controls.advanced-options-exibition.hide-label')
+                          : t('instructions-form.controls.advanced-options-exibition.show-label')
+                      }
                     >
-                      <CreateIcon />
+                      {showAdvancedOptions ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                     </IconButton>
                   </Tooltip>
-                )}
-              </Stack>
-            </form>
-          </Box>
 
-          {!isCreatingTab && invalidInstructions && (
-            <Alert
-              severity="error"
-              icon={false}
-              sx={{ 'width': '100%', '& .MuiAlert-message': { width: '100%' } }}
-            >
-              <AlertTitle sx={{ display: 'flex', mb: 2 }}>
-                <ErrorOutlineIcon sx={{ color: (theme) => theme.palette.error.light, mr: 1 }} />
-                {t('tab-creation.renderization-error')}
-              </AlertTitle>
+                  {isCreatingTab ? (
+                    <CircularProgress sx={{ margin: 0, padding: '0.5rem' }} />
+                  ) : (
+                    <Tooltip title={t('instructions-form.controls.write-tablature.label')} arrow>
+                      <IconButton
+                        aria-label={t('instructions-form.controls.write-tablature.label')}
+                        color="primary"
+                        type="submit"
+                        disabled={isCreatingTab}
+                      >
+                        <CreateIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </Stack>
+              </form>
+            </Box>
 
-              <InvalidInstructionsFeedback
-                invalidInstructions={invalidInstructions}
-              ></InvalidInstructionsFeedback>
-            </Alert>
-          )}
+            {!isCreatingTab && invalidInstructions && (
+              <Alert
+                severity="warning"
+                icon={false}
+                sx={{ 'width': '100%', '& .MuiAlert-message': { width: '100%' } }}
+              >
+                <AlertTitle sx={{ display: 'flex', mb: 2 }}>
+                  <WarningAmberIcon
+                    sx={{ color: (theme) => theme.palette.warning.light, mr: 1, fontSize: 22 }}
+                  />
+                  {t('tab-creation.errors.invalid-instructions.title')}
+                </AlertTitle>
 
-          {!isCreatingTab && createdTab && (
-            <Tablature
-              blocks={createdTab.blocks}
-              observations={createdTab.observations}
-              title={createdTab.title}
-            />
-          )}
+                <InvalidInstructionsFeedback
+                  invalidInstructions={invalidInstructions}
+                ></InvalidInstructionsFeedback>
+              </Alert>
+            )}
+
+            {!isCreatingTab && tabCreationError && (
+              <Alert severity="error">
+                <AlertTitle>{t('tab-creation.errors.general.title')}</AlertTitle>
+                {t('tab-creation.errors.general.message')}
+              </Alert>
+            )}
+
+            {!isCreatingTab && createdTab && (
+              <Tablature
+                blocks={createdTab.blocks}
+                observations={createdTab.observations}
+                title={createdTab.title}
+              />
+            )}
+          </>
         </Grid>
       </Grid>
     </Layout>
