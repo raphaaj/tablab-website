@@ -1,5 +1,6 @@
 import TablatureBlock from '@components/tablature-block';
-import Typography from '@mui/material/Typography';
+import TypographyTablatureObservations from '@components/typography-tablature-observations';
+import TypographyTablatureTitle from '@components/typography-tablature-title';
 import { useTranslation } from 'next-i18next';
 import { FC } from 'react';
 
@@ -14,16 +15,10 @@ const Tablature: FC<TablatureProps> = (props) => {
 
   return (
     <>
-      {!!props.title && (
-        <Typography variant="h4" color="primary" gutterBottom>
-          {props.title}
-        </Typography>
-      )}
+      {!!props.title && <TypographyTablatureTitle>{props.title}</TypographyTablatureTitle>}
 
       {!!props.observations && (
-        <Typography variant="subtitle1" component="p" gutterBottom>
-          {props.observations}
-        </Typography>
+        <TypographyTablatureObservations>{props.observations}</TypographyTablatureObservations>
       )}
 
       {props.blocks.map((block, blockIndex) => (

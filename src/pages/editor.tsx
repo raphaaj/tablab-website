@@ -2,6 +2,7 @@ import { InvalidInstruction } from '@components/invalid-instruction-feedback';
 import InvalidInstructionsFeedback from '@components/invalid-instructions-feedback';
 import Layout from '@components/layout/layout';
 import Tablature from '@components/tablature';
+import TablatureSkeleton from '@components/tablature-skeleton';
 import TextFieldFontMonospace from '@components/text-field-font-monospace';
 import { TabLib } from '@lib/tab/tab-lib';
 import { TabCreationError } from '@models/tab/tab-creation-error';
@@ -48,6 +49,8 @@ export const OPTIONS_FOR_INITIAL_SPACING = Array.from(
   (_, i) => i + MIN_INITIAL_SPACING_OPTION
 );
 
+export const NUMBER_OF_TABLATURE_BLOCKS_ON_SKELETON = 3;
+
 type Tablature = {
   blocks: string[][];
   observations: string | null;
@@ -73,9 +76,8 @@ function createInvalidInstructionFromRenderizationError(
 }
 
 /**
- * TODO: exibição de erros inesperados (alert ou snackbar)
- * TODO: exibição de esqueleto de tablatura ao aguardar criação da tablatura
  * TODO: exibição de mensagens de validação no formulário
+ * TODO: adaptar length da tablatura à width da viewport
  */
 
 export default function Editor() {
@@ -133,7 +135,7 @@ export default function Editor() {
           initialSpacing: initialSpacingInputValue,
           instructions: instructionsInputValue.trim(),
           numberOfStrings: numberOfStringsInputValue,
-          tabBlockLength: 40, // TODO: adapt according to viewport width
+          tabBlockLength: 40,
           observations: observationsInputValue.trim(),
           title: titleInputValue.trim(),
         },
@@ -342,6 +344,15 @@ export default function Editor() {
                 blocks={createdTab.blocks}
                 observations={createdTab.observations}
                 title={createdTab.title}
+              />
+            )}
+
+            {isCreatingTab && (
+              <TablatureSkeleton
+                hasTitle={!!titleInputValue}
+                hasObservations={!!observationsInputValue}
+                numberOfBlocks={NUMBER_OF_TABLATURE_BLOCKS_ON_SKELETON}
+                numberOfRowsPerBlock={numberOfStringsInputValue + 2}
               />
             )}
           </>
