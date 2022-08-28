@@ -76,7 +76,6 @@ function createInvalidInstructionFromRenderizationError(
 }
 
 /**
- * TODO: exibição de mensagens de validação no formulário
  * TODO: adaptar length da tablatura à width da viewport
  */
 
@@ -85,7 +84,10 @@ export default function Editor() {
   const { t } = useTranslation('editor');
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+
   const [instructionsInputValue, setInstructionsInputValue] = useState('');
+  const [instructionsInputError, setInstructionsInputError] = useState<string | null>(null);
+
   const [titleInputValue, setTitleInputValue] = useState('');
   const [observationsInputValue, setObservationsInputValue] = useState('');
   const [numberOfStringsInputValue, setNumberOfStringsInputValue] =
@@ -121,13 +123,32 @@ export default function Editor() {
     setInitialSpacingInputValue(Number(event.target.value));
   };
 
+  const isTabCreationFormValid = (): boolean => {
+    setInstructionsInputError(null);
+
+    let isInstructionsInputValueValid = true;
+    if (!instructionsInputValue || !instructionsInputValue.trim()) {
+      isInstructionsInputValueValid = false;
+      setInstructionsInputError(
+        t('instructions-form.fields.instructions-input.validation-errors.required')
+      );
+    }
+
+    const isTabCreationFormValid = isInstructionsInputValueValid;
+
+    return isTabCreationFormValid;
+  };
+
   const handleTabCreation: React.FormEventHandler = async (event) => {
     event.preventDefault();
 
-    setIsCreatingTab(true);
     setCreatedTab(null);
     setInvalidInstructions(null);
     setTabCreationError(null);
+
+    if (!isTabCreationFormValid()) return;
+
+    setIsCreatingTab(true);
 
     try {
       const tabCreationResult = await TabLib.createTab(
@@ -154,6 +175,9 @@ export default function Editor() {
         );
 
         setInvalidInstructions(invalidInstructions);
+        setInstructionsInputError(
+          t('instructions-form.fields.instructions-input.validation-errors.invalid-instructions')
+        );
       } else {
         setTabCreationError(error);
       }
@@ -179,7 +203,7 @@ export default function Editor() {
         <Grid item xs={12} md={10} lg={8}>
           <>
             <Box mb={3}>
-              <form onSubmit={handleTabCreation}>
+              <form onSubmit={handleTabCreation} noValidate>
                 <TextFieldFontMonospace
                   id="instructions-input"
                   label={t('instructions-form.fields.instructions-input.label')}
@@ -189,6 +213,8 @@ export default function Editor() {
                   minRows={4}
                   value={instructionsInputValue}
                   onChange={handleInstructionsInputValueChange}
+                  error={instructionsInputError !== null}
+                  helperText={instructionsInputError}
                   variant="filled"
                   margin="normal"
                   inputProps={{

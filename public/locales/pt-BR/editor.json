@@ -2,7 +2,11 @@
   "instructions-form": {
     "fields": {
       "instructions-input": {
-        "label": "Instruções"
+        "label": "Instruções",
+        "validation-errors": {
+          "required": "Você precisa indicar as instruções para gerar a tablatura",
+          "invalid-instructions": "Instruções inválidas identificadas"
+        }
       },
       "title-input": {
         "label": "Título"
