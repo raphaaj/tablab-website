@@ -26,7 +26,8 @@ import { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import { useElementSize } from 'src/hooks/use-element-size';
 
 export const DEFAULT_NUMBER_OF_STRINGS = 6;
 export const DEFAULT_INITIAL_SPACING = 3;
@@ -75,13 +76,11 @@ function createInvalidInstructionFromRenderizationError(
   };
 }
 
-/**
- * TODO: adaptar length da tablatura à width da viewport
- */
-
 export default function Editor() {
   const router = useRouter();
   const { t } = useTranslation('editor');
+
+  const contentGridRef = useRef(null);
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
@@ -98,6 +97,8 @@ export default function Editor() {
   const [createdTab, setCreatedTab] = useState<Tablature | null>(null);
   const [invalidInstructions, setInvalidInstructions] = useState<InvalidInstruction[] | null>(null);
   const [tabCreationError, setTabCreationError] = useState<unknown | null>(null);
+
+  const contentGridSize = useElementSize(contentGridRef.current);
 
   const toggleShowAdvancedOptions = () => {
     setShowAdvancedOptions(!showAdvancedOptions);
@@ -151,12 +152,22 @@ export default function Editor() {
     setIsCreatingTab(true);
 
     try {
+      // The relation between the grid content width and tab's block length was determined empirically
+      let tabBlockLength = TabLib.MIN_TAB_BLOCK_LENGTH;
+      if (contentGridSize.width) {
+        const tabBlockLenthFromGridContentWidth = Math.trunc(0.103 * contentGridSize.width - 6.58);
+
+        if (tabBlockLenthFromGridContentWidth > TabLib.MIN_TAB_BLOCK_LENGTH) {
+          tabBlockLength = tabBlockLenthFromGridContentWidth;
+        }
+      }
+
       const tabCreationResult = await TabLib.createTab(
         {
           initialSpacing: initialSpacingInputValue,
           instructions: instructionsInputValue.trim(),
           numberOfStrings: numberOfStringsInputValue,
-          tabBlockLength: 40,
+          tabBlockLength,
           observations: observationsInputValue.trim(),
           title: titleInputValue.trim(),
         },
@@ -200,7 +211,7 @@ export default function Editor() {
           },
         })}
       >
-        <Grid item xs={12} md={10} lg={8}>
+        <Grid item xs={12} md={10} lg={8} ref={contentGridRef}>
           <>
             <Box mb={3}>
               <form onSubmit={handleTabCreation} noValidate>

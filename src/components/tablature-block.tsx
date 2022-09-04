@@ -18,7 +18,7 @@ const TablatureBlock: FC<TablatureBlockProps> = (props) => {
           key={blockRowIndex}
           isLastRow={blockRowIndex === props.block.length - 1}
         >
-          <TypographyTablatureContent>
+          <TypographyTablatureContent sx={{ textAlign: 'center' }}>
             {blockRowIndex === 0 || blockRowIndex === props.block.length - 1
               ? ''.padStart(tabBlockRowPrefixLength, ' ')
               : `${blockRowIndex}) `.padStart(tabBlockRowPrefixLength, ' ')}

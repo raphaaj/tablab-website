@@ -7,6 +7,8 @@ export type TabCreationOptions = {
 };
 
 export class TabLib {
+  public static MIN_TAB_BLOCK_LENGTH = 20;
+
   public static async createTab(
     tabCreationDTO: TabCreationRequest,
     options: TabCreationOptions = {}

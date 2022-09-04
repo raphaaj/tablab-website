@@ -11,7 +11,7 @@ const TablatureBlockRowContainer: FC<TablatureBlockRowContainerProps> = (props) 
   return (
     <TableRow>
       <TableCell
-        component="th"
+        component="td"
         scope="row"
         sx={{
           borderBottom: props.isLastRow ? 'none' : undefined,
