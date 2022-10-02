@@ -3,11 +3,11 @@
  * * https://mui.com/pt/material-ui/getting-started/example-projects/
  * * https://github.com/mui/material-ui/blob/master/examples/nextjs-with-typescript/pages/_app.tsx
  */
+import createTheme from '@client/styles/theme/create-theme';
+import createEmotionCache from '@client/utils/create-emotion-cache';
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
-import createTheme from '@styles/theme/create-theme';
-import createEmotionCache from '@utils/create-emotion-cache';
 import { appWithTranslation } from 'next-i18next';
 import { AppProps } from 'next/app';
 import Head from 'next/head';

@@ -1,11 +1,13 @@
-import { InvalidInstruction } from '@components/invalid-instruction-feedback';
-import InvalidInstructionsFeedback from '@components/invalid-instructions-feedback';
-import Layout from '@components/layout/layout';
-import Tablature from '@components/tablature';
-import TablatureSkeleton from '@components/tablature-skeleton';
-import TextFieldFontMonospace from '@components/text-field-font-monospace';
-import { TabLib } from '@lib/tab/tab-lib';
-import { TabCreationError } from '@models/tab/tab-creation-error';
+import BaseLayout from '@client/components/layout/base-layout';
+import { InvalidInstruction } from '@client/components/pages/editor/invalid-instruction-feedback';
+import InvalidInstructionsFeedback from '@client/components/pages/editor/invalid-instructions-feedback';
+import Tablature from '@client/components/tablature/tablature';
+import TablatureSkeleton from '@client/components/tablature/tablature-skeleton';
+import TextFieldFontMonospace from '@client/components/ui/text-field-font-monospace';
+import { useElementSize } from '@client/hooks/use-element-size';
+import { TablatureCreationError } from '@client/models/tablature/tablature-creation-error';
+import { TablatureService } from '@client/services/tablature-service';
+import { TablatureInstructionRenderizationErrorDetails } from '@common/view-models/tablature/tablature-renderization-error';
 import CreateIcon from '@mui/icons-material/Create';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -21,13 +23,11 @@ import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
-import { TabInstructionRenderizationError } from '@view-models/tab/tab-instruction-renderization-error';
 import { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import React, { useRef, useState } from 'react';
-import { useElementSize } from 'src/hooks/use-element-size';
 
 export const DEFAULT_NUMBER_OF_STRINGS = 6;
 export const DEFAULT_INITIAL_SPACING = 3;
@@ -52,27 +52,28 @@ export const OPTIONS_FOR_INITIAL_SPACING = Array.from(
 
 export const NUMBER_OF_TABLATURE_BLOCKS_ON_SKELETON = 3;
 
-type Tablature = {
+interface Tablature {
   blocks: string[][];
   observations: string | null;
   title: string | null;
-};
+}
 
-function createInvalidInstructionFromRenderizationError(
-  renderizationError: TabInstructionRenderizationError
+function createInvalidInstructionFromInstructionRenderizationError(
+  instructionRenderizationError: TablatureInstructionRenderizationErrorDetails
 ): InvalidInstruction {
   let invalidChildInstructions: InvalidInstruction[] | null = null;
 
-  if (renderizationError.childErrors) {
-    invalidChildInstructions = renderizationError.childErrors.map(
-      createInvalidInstructionFromRenderizationError
-    );
+  if (instructionRenderizationError.childInstructionsRenderizationErrors) {
+    invalidChildInstructions =
+      instructionRenderizationError.childInstructionsRenderizationErrors.map(
+        createInvalidInstructionFromInstructionRenderizationError
+      );
   }
 
   return {
     invalidChildInstructions,
-    instruction: renderizationError.instruction,
-    description: renderizationError.errorMessage as string,
+    instruction: instructionRenderizationError.instruction,
+    description: instructionRenderizationError.renderizationErrorMessage,
   };
 }
 
@@ -152,22 +153,22 @@ export default function Editor() {
     setIsCreatingTab(true);
 
     try {
-      // The relation between the grid content width and tab's block length was determined empirically
-      let tabBlockLength = TabLib.MIN_TAB_BLOCK_LENGTH;
+      let tablatureRowsLength = TablatureService.MIN_TABLATURE_ROWS_LENGTH;
       if (contentGridSize.width) {
+        // The relation between the grid content width and tab's block length was determined empirically
         const tabBlockLenthFromGridContentWidth = Math.trunc(0.103 * contentGridSize.width - 6.58);
 
-        if (tabBlockLenthFromGridContentWidth > TabLib.MIN_TAB_BLOCK_LENGTH) {
-          tabBlockLength = tabBlockLenthFromGridContentWidth;
+        if (tabBlockLenthFromGridContentWidth > TablatureService.MIN_TABLATURE_ROWS_LENGTH) {
+          tablatureRowsLength = tabBlockLenthFromGridContentWidth;
         }
       }
 
-      const tabCreationResult = await TabLib.createTab(
+      const tabCreationResult = await TablatureService.createTablature(
         {
           initialSpacing: initialSpacingInputValue,
           instructions: instructionsInputValue.trim(),
           numberOfStrings: numberOfStringsInputValue,
-          tabBlockLength,
+          rowsLength: tablatureRowsLength,
           observations: observationsInputValue.trim(),
           title: titleInputValue.trim(),
         },
@@ -180,9 +181,10 @@ export default function Editor() {
         blocks: tabCreationResult.renderedTab,
       });
     } catch (error) {
-      if (error instanceof TabCreationError && error.renderizationErrors) {
-        const invalidInstructions = error.renderizationErrors.map((renderizationError) =>
-          createInvalidInstructionFromRenderizationError(renderizationError)
+      if (error instanceof TablatureCreationError && error.instructionsRenderizationErrors) {
+        const invalidInstructions = error.instructionsRenderizationErrors.map(
+          (instructionRenderizationError) =>
+            createInvalidInstructionFromInstructionRenderizationError(instructionRenderizationError)
         );
 
         setInvalidInstructions(invalidInstructions);
@@ -198,7 +200,7 @@ export default function Editor() {
   };
 
   return (
-    <Layout>
+    <BaseLayout>
       <Grid
         container
         justifyContent="center"
@@ -395,7 +397,7 @@ export default function Editor() {
           </>
         </Grid>
       </Grid>
-    </Layout>
+    </BaseLayout>
   );
 }
 

@@ -1,4 +1,4 @@
-import Layout from '@components/layout/layout';
+import BaseLayout from '@client/components/layout/base-layout';
 import Typography from '@mui/material/Typography';
 import { GetStaticProps } from 'next';
 import { useTranslation } from 'next-i18next';
@@ -8,9 +8,9 @@ export default function About() {
   const { t } = useTranslation('about');
 
   return (
-    <Layout>
+    <BaseLayout>
       <Typography variant="h4">{t('name')}</Typography>
-    </Layout>
+    </BaseLayout>
   );
 }
 

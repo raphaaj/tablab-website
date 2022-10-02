@@ -3,11 +3,10 @@
  * * https://mui.com/pt/material-ui/getting-started/example-projects/
  * * https://github.com/mui/material-ui/blob/master/examples/nextjs-with-typescript/pages/_document.tsx
  */
+import createTheme from '@client/styles/theme/create-theme';
+import createEmotionCache from '@client/utils/create-emotion-cache';
 import createEmotionServer from '@emotion/server/create-instance';
-import createTheme from '@styles/theme/create-theme';
-import createEmotionCache from '@utils/create-emotion-cache';
 import Document, { DocumentContext, Head, Html, Main, NextScript } from 'next/document';
-import * as React from 'react';
 
 export default class MyDocument extends Document {
   public static async getInitialProps(context: DocumentContext) {

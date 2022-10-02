@@ -8,17 +8,13 @@ const customJestConfig: JestConfig.InitialOptions = {
   collectCoverageFrom: ['src/**/*.{js,jsx,ts,tsx}', '!src/@types/**'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
-    '^@components/(.*)$': '<rootDir>/src/components/$1',
-    '^@enums/(.*)$': '<rootDir>/src/enums/$1',
-    '^@lib/(.*)$': '<rootDir>/src/lib/$1',
-    '^@models/(.*)$': '<rootDir>/src/models/$1',
+    '^@client/(.*)$': '<rootDir>/src/client/$1',
+    '^@common/(.*)$': '<rootDir>/src/common/$1',
     '^@pages/(.*)$': '<rootDir>/src/pages/$1',
-    '^@services/(.*)$': '<rootDir>/src/services/$1',
-    '^@styles/(.*)$': '<rootDir>/src/styles/$1',
-    '^@utils/(.*)$': '<rootDir>/src/utils/$1',
-    '^@view-models/(.*)$': '<rootDir>/src/view-models/$1',
+    '^@server/(.*)$': '<rootDir>/src/server/$1',
+    '^@test-mocks/(.*)$': '<rootDir>/tests/.mocks/$1',
     '^@test-utils/(.*)$': '<rootDir>/tests/.utils/$1',
-    '^next-i18next.config': '<rootDir>/next-i18next.config',
+    '^next-i18next.config$': '<rootDir>/next-i18next.config',
   },
 };
 

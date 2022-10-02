@@ -1,8 +1,9 @@
-import { ErrorCode } from '@enums/error-code';
-import { createTabsHandler } from '@pages/api/tabs';
-import { TabCreationDTO } from '@services/tab/tab-creation-dto';
-import { TabDTO } from '@services/tab/tab-dto';
-import { BaseTabService, TabCreationResultDTO } from '@services/tab/tab-service';
+import { ErrorCode } from '@common/enums/error-code';
+import { createTabsApiHandler } from '@pages/api/tabs';
+import { BaseTablatureService } from '@server/services/tablature/base-tablature-service';
+import { TablatureCreationDataDTO } from '@server/services/tablature/dtos/tablature-creation-data-dto';
+import { TablatureCreationResultDTO } from '@server/services/tablature/dtos/tablature-creation-result-dto';
+import { TablatureDTO } from '@server/services/tablature/dtos/tablature-dto';
 import { getTestFailedWriteResult } from '@test-utils/failed-write-result-generator';
 import { NextApiRequest, NextApiResponse } from 'next';
 import httpMocks, { RequestMethod } from 'node-mocks-http';
@@ -10,23 +11,25 @@ import { FailedWriteResult } from 'tablab';
 
 const URL = '/api/tabs';
 
-class SuccessfulTabCreationTabService extends BaseTabService {
-  public createTab(tabCreationDTO: TabCreationDTO): Promise<TabCreationResultDTO> {
-    const tab = new TabDTO({
-      initialSpacing: tabCreationDTO.initialSpacing,
-      instructions: tabCreationDTO.instructions,
-      numberOfStrings: tabCreationDTO.numberOfStrings,
+class SuccessfulTablatureCreationTabService extends BaseTablatureService {
+  public createTablature(
+    tablatureCreationData: TablatureCreationDataDTO
+  ): Promise<TablatureCreationResultDTO> {
+    const tablature = new TablatureDTO({
+      initialSpacing: tablatureCreationData.initialSpacing,
+      instructions: tablatureCreationData.instructions,
+      numberOfStrings: tablatureCreationData.numberOfStrings,
       renderedTab: [[]],
-      tabBlockLength: tabCreationDTO.tabBlockLength,
-      observations: tabCreationDTO.observations,
-      title: tabCreationDTO.title,
+      rowsLength: tablatureCreationData.rowsLength,
+      observations: tablatureCreationData.observations,
+      title: tablatureCreationData.title,
     });
 
-    return Promise.resolve({ success: true, tab });
+    return Promise.resolve({ success: true, tablature });
   }
 }
 
-class FailedTabCreationTabService extends BaseTabService {
+class FailedTabCreationTabService extends BaseTablatureService {
   public failedWriteResults: FailedWriteResult[];
 
   public constructor(failedWriteResults: FailedWriteResult[]) {
@@ -35,40 +38,40 @@ class FailedTabCreationTabService extends BaseTabService {
     this.failedWriteResults = failedWriteResults;
   }
 
-  public createTab(): Promise<TabCreationResultDTO> {
+  public createTablature(): Promise<TablatureCreationResultDTO> {
     return Promise.resolve({ failedWriteResults: this.failedWriteResults, success: false });
   }
 }
 
-type TabCreationRequest = {
+type TablatureCreationRequest = {
   initialSpacing?: any;
   instructions?: any;
   numberOfStrings?: any;
   observations?: any;
-  tabBlockLength?: any;
+  rowsLength?: any;
   title?: any;
   unknownField?: any;
 };
 
-function getRequestBody(customOptions: TabCreationRequest = {}): TabCreationRequest {
+function getRequestBody(customOptions: TablatureCreationRequest = {}): TablatureCreationRequest {
   return {
     initialSpacing: 1,
     instructions: '1-0',
     numberOfStrings: 6,
-    tabBlockLength: 30,
+    rowsLength: 30,
     ...customOptions,
   };
 }
 
 describe(URL, () => {
   describe('http methods handling', () => {
-    it.each<RequestMethod>(['GET', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'])(
+    it.each<RequestMethod>(['GET', 'PUT', 'PATCH', 'DELETE'])(
       'should return a 405 if HTTP method is %s',
       async (method) => {
         const request = httpMocks.createRequest<NextApiRequest>({ method, url: URL });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsHandler(new SuccessfulTabCreationTabService());
+        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
         await tabsHandler(request, response);
 
         const responseBody = response._getJSONData();
@@ -95,7 +98,7 @@ describe(URL, () => {
       });
       const response = httpMocks.createResponse<NextApiResponse>();
 
-      const tabsHandler = createTabsHandler(new SuccessfulTabCreationTabService());
+      const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
       await tabsHandler(request, response);
 
       const responseBody = response._getJSONData();
@@ -126,7 +129,7 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsHandler(new SuccessfulTabCreationTabService());
+        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
         await tabsHandler(request, response);
 
         const responseBody = response._getJSONData();
@@ -159,7 +162,7 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsHandler(new SuccessfulTabCreationTabService());
+        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
         await tabsHandler(request, response);
 
         const responseBody = response._getJSONData();
@@ -192,7 +195,7 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsHandler(new SuccessfulTabCreationTabService());
+        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
         await tabsHandler(request, response);
 
         const responseBody = response._getJSONData();
@@ -221,7 +224,7 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsHandler(new SuccessfulTabCreationTabService());
+        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
         await tabsHandler(request, response);
 
         const responseBody = response._getJSONData();
@@ -234,7 +237,7 @@ describe(URL, () => {
       });
     });
 
-    describe('tabBlockLength', () => {
+    describe('rowsLength', () => {
       it.each([
         ['not set', undefined],
         ['null', null],
@@ -244,8 +247,8 @@ describe(URL, () => {
         ['a number smaller than 15', 14],
         ['a number greater than 500', 501],
         ['a decimal number', 15.67],
-      ])('should return 400 if the tabBlockLength field is %s', async (_, tabBlockLength) => {
-        const requestBody = getRequestBody({ tabBlockLength });
+      ])('should return 400 if the rowsLength field is %s', async (_, rowsLength) => {
+        const requestBody = getRequestBody({ rowsLength: rowsLength });
 
         const request = httpMocks.createRequest<NextApiRequest>({
           method: 'POST',
@@ -254,7 +257,7 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsHandler(new SuccessfulTabCreationTabService());
+        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
         await tabsHandler(request, response);
 
         const responseBody = response._getJSONData();
@@ -283,7 +286,7 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsHandler(new SuccessfulTabCreationTabService());
+        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
         await tabsHandler(request, response);
 
         const responseBody = response._getJSONData();
@@ -308,7 +311,7 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsHandler(new SuccessfulTabCreationTabService());
+        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
         await tabsHandler(request, response);
 
         const responseBody = response._getJSONData();
@@ -333,9 +336,9 @@ describe(URL, () => {
       });
       const response = httpMocks.createResponse<NextApiResponse>();
 
-      const tabService = new SuccessfulTabCreationTabService();
-      const createTabSpy = jest.spyOn(tabService, 'createTab');
-      const tabsHandler = createTabsHandler(tabService);
+      const tabService = new SuccessfulTablatureCreationTabService();
+      const createTabSpy = jest.spyOn(tabService, 'createTablature');
+      const tabsHandler = createTabsApiHandler(tabService);
       await tabsHandler(request, response);
 
       const responseBody = response._getJSONData();
@@ -343,12 +346,12 @@ describe(URL, () => {
 
       expect(response.statusCode).toBe(201);
       expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TabCreationDTO(request.body));
+      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body));
       expect(responseBody.title).toBe(null);
       expect(responseBody.observations).toBe(null);
       expect(responseBody.numberOfStrings).toBe(requestBody.numberOfStrings);
       expect(responseBody.initialSpacing).toBe(requestBody.initialSpacing);
-      expect(responseBody.tabBlockLength).toBe(requestBody.tabBlockLength);
+      expect(responseBody.rowsLength).toBe(requestBody.rowsLength);
       expect(responseBody.instructions).toBe(requestBody.instructions);
       expect(responseBody.renderedTab).toBeDefined();
       expect(responseHeaders['content-type']).toBe('application/json');
@@ -365,9 +368,9 @@ describe(URL, () => {
       });
       const response = httpMocks.createResponse<NextApiResponse>();
 
-      const tabService = new SuccessfulTabCreationTabService();
-      const createTabSpy = jest.spyOn(tabService, 'createTab');
-      const tabsHandler = createTabsHandler(tabService);
+      const tabService = new SuccessfulTablatureCreationTabService();
+      const createTabSpy = jest.spyOn(tabService, 'createTablature');
+      const tabsHandler = createTabsApiHandler(tabService);
       await tabsHandler(request, response);
 
       const responseBody = response._getJSONData();
@@ -375,12 +378,12 @@ describe(URL, () => {
 
       expect(response.statusCode).toBe(201);
       expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TabCreationDTO(request.body));
+      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body));
       expect(responseBody.title).toBe(title);
       expect(responseBody.observations).toBe(null);
       expect(responseBody.numberOfStrings).toBe(requestBody.numberOfStrings);
       expect(responseBody.initialSpacing).toBe(requestBody.initialSpacing);
-      expect(responseBody.tabBlockLength).toBe(requestBody.tabBlockLength);
+      expect(responseBody.rowsLength).toBe(requestBody.rowsLength);
       expect(responseBody.instructions).toBe(requestBody.instructions);
       expect(responseBody.renderedTab).toBeDefined();
       expect(responseHeaders['content-type']).toBe('application/json');
@@ -397,9 +400,9 @@ describe(URL, () => {
       });
       const response = httpMocks.createResponse<NextApiResponse>();
 
-      const tabService = new SuccessfulTabCreationTabService();
-      const createTabSpy = jest.spyOn(tabService, 'createTab');
-      const tabsHandler = createTabsHandler(tabService);
+      const tabService = new SuccessfulTablatureCreationTabService();
+      const createTabSpy = jest.spyOn(tabService, 'createTablature');
+      const tabsHandler = createTabsApiHandler(tabService);
       await tabsHandler(request, response);
 
       const responseBody = response._getJSONData();
@@ -407,12 +410,12 @@ describe(URL, () => {
 
       expect(response.statusCode).toBe(201);
       expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TabCreationDTO(request.body));
+      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body));
       expect(responseBody.title).toBe(null);
       expect(responseBody.observations).toBe(observations);
       expect(responseBody.numberOfStrings).toBe(requestBody.numberOfStrings);
       expect(responseBody.initialSpacing).toBe(requestBody.initialSpacing);
-      expect(responseBody.tabBlockLength).toBe(requestBody.tabBlockLength);
+      expect(responseBody.rowsLength).toBe(requestBody.rowsLength);
       expect(responseBody.instructions).toBe(requestBody.instructions);
       expect(responseBody.renderedTab).toBeDefined();
       expect(responseHeaders['content-type']).toBe('application/json');
@@ -430,8 +433,8 @@ describe(URL, () => {
 
       const failedWriteResult = getTestFailedWriteResult();
       const tabService = new FailedTabCreationTabService([failedWriteResult]);
-      const createTabSpy = jest.spyOn(tabService, 'createTab');
-      const tabsHandler = createTabsHandler(tabService);
+      const createTabSpy = jest.spyOn(tabService, 'createTablature');
+      const tabsHandler = createTabsApiHandler(tabService);
       await tabsHandler(request, response);
 
       const responseBody = response._getJSONData();
@@ -439,9 +442,9 @@ describe(URL, () => {
 
       expect(response.statusCode).toBe(422);
       expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TabCreationDTO(request.body));
+      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body));
       expect(responseBody.errorCode).toBe(ErrorCode.Tab_RenderizationError);
-      expect(responseBody.details.renderizationErrors).toBeDefined();
+      expect(responseBody.details.instructionsRenderizationErrors).toBeDefined();
       expect(responseHeaders['content-type']).toBe('application/json');
     });
 
@@ -455,9 +458,11 @@ describe(URL, () => {
       });
       const response = httpMocks.createResponse<NextApiResponse>();
 
-      const tabService = new SuccessfulTabCreationTabService();
-      const createTabSpy = jest.spyOn(tabService, 'createTab').mockRejectedValue(new Error('test'));
-      const tabsHandler = createTabsHandler(tabService);
+      const tabService = new SuccessfulTablatureCreationTabService();
+      const createTabSpy = jest
+        .spyOn(tabService, 'createTablature')
+        .mockRejectedValue(new Error('test'));
+      const tabsHandler = createTabsApiHandler(tabService);
       await tabsHandler(request, response);
 
       const responseBody = response._getJSONData();
@@ -465,7 +470,7 @@ describe(URL, () => {
 
       expect(response.statusCode).toBe(500);
       expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TabCreationDTO(request.body));
+      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body));
       expect(responseBody.errorCode).toBe(ErrorCode.Common_UnknownError);
       expect(responseBody.details).toBe(null);
       expect(responseHeaders['content-type']).toBe('application/json');
@@ -484,7 +489,7 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsHandler(new SuccessfulTabCreationTabService());
+        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
         await tabsHandler(request, response);
 
         const responseHeaders = response._getHeaders();
@@ -514,7 +519,7 @@ describe(URL, () => {
           });
           const response = httpMocks.createResponse<NextApiResponse>();
 
-          const tabsHandler = createTabsHandler(new SuccessfulTabCreationTabService());
+          const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
           await tabsHandler(request, response);
 
           const responseHeaders = response._getHeaders();

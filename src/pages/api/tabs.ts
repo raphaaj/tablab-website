@@ -1,68 +1,72 @@
-import { TabCreationDTO } from '@services/tab/tab-creation-dto';
-import { BaseTabService, TabService } from '@services/tab/tab-service';
-import { RequestUtils } from '@utils/request-utils';
-import { ServerSideTranslationUtils } from '@utils/server-side-translation-utils';
-import { InternalError } from '@view-models/error/internal-error';
-import { InvalidContentSyntaxError } from '@view-models/error/invalid-content-syntax-error';
-import { InvalidHttpMethodError } from '@view-models/error/invalid-http-method-error';
-import { validateTabCreationObject } from '@view-models/tab/tab-creation-request';
-import { TabCreationResponse } from '@view-models/tab/tab-creation-response';
-import { TabErrorsFactory } from '@view-models/tab/tab-errors-factory';
-import { TabRenderizationError } from '@view-models/tab/tab-renderization-error';
+import { BaseTablatureService } from '@server/services/tablature/base-tablature-service';
+import { TablatureCreationDataDTO } from '@server/services/tablature/dtos/tablature-creation-data-dto';
+import { TablatureService } from '@server/services/tablature/tablature-service';
+import { RequestUtils } from '@server/utils/request-utils';
+import { ServerSideTranslationUtils } from '@server/utils/translation-utils';
+import { InternalError } from '@server/view-models/error/internal-error';
+import { InvalidContentSyntaxError } from '@server/view-models/error/invalid-content-syntax-error';
+import { InvalidHttpMethodError } from '@server/view-models/error/invalid-http-method-error';
+import { validateTablatureCreationObject } from '@server/view-models/tablature/tablature-creation-request';
+import { TablatureCreationResponse } from '@server/view-models/tablature/tablature-creation-response';
+import { TablatureErrorsFactory } from '@server/view-models/tablature/tablature-errors-factory';
+import { TablatureRenderizationError } from '@server/view-models/tablature/tablature-renderization-error';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export type TabCreationResult =
-  | TabCreationResponse
-  | TabRenderizationError
+export type TablatureCreationResult =
+  | TablatureCreationResponse
+  | TablatureRenderizationError
   | InvalidContentSyntaxError
   | InvalidHttpMethodError
   | InternalError;
 
-export type TabsApiHandler = ApiHandler<TabCreationResult>;
+export type TabsApiHandler = ApiHandler<TablatureCreationResult>;
 
-export function createTabsHandler(tabService: BaseTabService): TabsApiHandler {
+export function createTabsApiHandler(tablatureService: BaseTablatureService): TabsApiHandler {
   return async function handler(
     request: NextApiRequest,
-    response: NextApiResponse<TabCreationResult>
+    response: NextApiResponse<TablatureCreationResult>
   ): Promise<void> {
-    const tabErrorsFactory = new TabErrorsFactory({ request });
+    const tablatureErrorsFactory = new TablatureErrorsFactory({ request });
 
-    let result: TabCreationResult;
+    let result: TablatureCreationResult;
     try {
       const requestUtils = new RequestUtils(request);
       const locale =
         requestUtils.getLocaleOption() || ServerSideTranslationUtils.getDefaultLocale();
-      tabErrorsFactory.locale = locale;
+      tablatureErrorsFactory.locale = locale;
       response.setHeader('Content-Language', locale);
 
       if (request.method !== 'POST') {
-        result = await tabErrorsFactory.getInvalidHttpMethodError(['POST']);
+        result = await tablatureErrorsFactory.getInvalidHttpMethodError(['POST']);
         return response.status(405).json(result);
       }
 
-      if (!validateTabCreationObject(request.body)) {
-        const validationErrors = validateTabCreationObject.errors;
+      if (!validateTablatureCreationObject(request.body)) {
+        const validationErrors = validateTablatureCreationObject.errors;
 
-        result = await tabErrorsFactory.getInvalidContentSyntaxError(validationErrors);
+        result = await tablatureErrorsFactory.getInvalidContentSyntaxError(validationErrors);
         return response.status(400).json(result);
       }
 
-      const tabCreationResult = await tabService.createTab(new TabCreationDTO(request.body));
-      if (!tabService.isSuccessfulTabCreationResult(tabCreationResult)) {
-        const failedWriteResults = tabCreationResult.failedWriteResults;
+      const tablatureCreationResult = await tablatureService.createTablature(
+        new TablatureCreationDataDTO(request.body)
+      );
 
-        result = await tabErrorsFactory.getTabRenderizationError(failedWriteResults);
+      if (!tablatureService.isSuccessfulTablatureCreationResult(tablatureCreationResult)) {
+        const failedWriteResults = tablatureCreationResult.failedWriteResults;
+
+        result = await tablatureErrorsFactory.getTablatureRenderizationError(failedWriteResults);
         return response.status(422).json(result);
       }
 
-      result = TabCreationResponse.createFromTabDTO(tabCreationResult.tab);
+      result = TablatureCreationResponse.createFromTablature(tablatureCreationResult.tablature);
 
       return response.status(201).json(result);
     } catch (e) {
-      result = await tabErrorsFactory.getInternalError();
+      result = await tablatureErrorsFactory.getInternalError();
       return response.status(500).json(result);
     }
   };
 }
 
-export default createTabsHandler(new TabService());
+export default createTabsApiHandler(new TablatureService());

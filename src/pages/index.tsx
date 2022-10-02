@@ -1,5 +1,5 @@
-import Layout from '@components/layout/layout';
-import NextLinkComposed from '@components/next-link-composed';
+import BaseLayout from '@client/components/layout/base-layout';
+import NextLinkComposed from '@client/components/ui/next-link-composed';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
@@ -13,7 +13,7 @@ const Home: NextPage = () => {
   const { t } = useTranslation('home');
 
   return (
-    <Layout>
+    <BaseLayout>
       <Grid
         container
         spacing={2}
@@ -66,7 +66,7 @@ const Home: NextPage = () => {
           />
         </Grid>
       </Grid>
-    </Layout>
+    </BaseLayout>
   );
 };
 

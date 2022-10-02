@@ -16,16 +16,11 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@components/*": ["src/components/*"],
-      "@enums/*": ["src/enums/*"],
-      "@lib/*": ["src/lib/*"],
-      "@models/*": ["src/models/*"],
+      "@client/*": ["src/client/*"],
+      "@common/*": ["src/common/*"],
       "@pages/*": ["src/pages/*"],
-      "@public/*": ["public/*"],
-      "@services/*": ["src/services/*"],
-      "@styles/*": ["src/styles/*"],
-      "@utils/*": ["src/utils/*"],
-      "@view-models/*": ["src/view-models/*"],
+      "@server/*": ["src/server/*"],
+      "@test-mocks/*": ["tests/.mocks/*"],
       "@test-utils/*": ["tests/.utils/*"],
       "next-i18next.config": ["next-i18next.config"]
     }
