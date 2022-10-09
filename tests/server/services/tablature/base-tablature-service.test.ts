@@ -14,7 +14,7 @@ class TestTablatureService extends BaseTablatureService {
   public getFailedTablatureCreationResultDTO(): FailedTablatureCreationResultDTO {
     return {
       success: false,
-      failedWriteResults: [],
+      instructionsRenderizationErrors: [],
     };
   }
 

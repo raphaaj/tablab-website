@@ -1,5 +1,5 @@
 import { TablatureDTO } from '@server/services/tablature/dtos/tablature-dto';
-import { FailedWriteResult } from 'tablab';
+import { TablatureInstructionRenderizationErrorDTO } from '@server/services/tablature/dtos/tablature-instruction-renderization-error-dto';
 
 export interface SuccessfulTablatureCreationResultDTO {
   success: true;
@@ -7,7 +7,7 @@ export interface SuccessfulTablatureCreationResultDTO {
 }
 
 export interface FailedTablatureCreationResultDTO {
-  failedWriteResults: FailedWriteResult[];
+  instructionsRenderizationErrors: TablatureInstructionRenderizationErrorDTO[];
   success: false;
 }
 

@@ -1,4 +1,5 @@
 import { TablatureCreationDataDTO } from '@server/services/tablature/dtos/tablature-creation-data-dto';
+import { TablatureCreationOptionsDTO } from '@server/services/tablature/dtos/tablature-creation-options-dto';
 import {
   SuccessfulTablatureCreationResultDTO,
   TablatureCreationResultDTO,
@@ -12,6 +13,7 @@ export abstract class BaseTablatureService {
   }
 
   public abstract createTablature(
-    tablatureCreationData: TablatureCreationDataDTO
+    tablatureCreationData: TablatureCreationDataDTO,
+    tablatureCreationOptions?: TablatureCreationOptionsDTO
   ): Promise<TablatureCreationResultDTO>;
 }

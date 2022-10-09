@@ -1,14 +1,14 @@
+import { TablatureInstructionRenderizationErrorDTO } from '@server/services/tablature/dtos/tablature-instruction-renderization-error-dto';
 import { TablatureInstructionRenderizationErrorDetails } from '@server/view-models/tablature/tablature-instruction-renderization-error-details';
-import { getTestFailedWriteResult } from '@test-utils/failed-write-result-generator';
 
 describe(TablatureInstructionRenderizationErrorDetails.name, () => {
   describe('constructor', () => {
     it('should create an instance when all the required fields are given', () => {
       const instruction = '1-0';
       const instructionStartIndex = 0;
-      const instructionEndIndex = instruction.length;
+      const instructionEndIndex = instruction.length - 1;
       const renderizationErrorType = 'SOME_ERROR_TYPE';
-      const renderizationErrorMessage = 'some error description';
+      const renderizationErrorMessage = 'Renderization Error Message';
       const childInstructionsRenderizationErrors = null;
 
       const tabInstructionRenderizationError = new TablatureInstructionRenderizationErrorDetails({
@@ -33,95 +33,92 @@ describe(TablatureInstructionRenderizationErrorDetails.name, () => {
     });
   });
 
-  describe(TablatureInstructionRenderizationErrorDetails.createFromFailedWriteResult.name, () => {
-    it('should create an instance from a failed write result', () => {
-      const failedWriteResult = getTestFailedWriteResult();
-      const parsedInstruction = failedWriteResult.instructionWriter.parsedInstruction;
+  describe(
+    TablatureInstructionRenderizationErrorDetails.createFromTablatureInstructionRenderizationError
+      .name,
+    () => {
+      it('should create an instance from a TablatureInstructionRenderizationErrorDTO instance', () => {
+        const instruction = 'instruction';
+        const tablatureInstructionRenderizationError =
+          new TablatureInstructionRenderizationErrorDTO({
+            instruction,
+            instructionStartIndex: 0,
+            instructionEndIndex: instruction.length - 1,
+            renderizationErrorType: 'RENDERIZATION_ERROR_TYPE',
+            renderizationErrorMessage: 'Renderization Error Message',
+            childInstructionsRenderizationErrors: null,
+          });
 
-      const tabInstructionRenderizationError =
-        TablatureInstructionRenderizationErrorDetails.createFromFailedWriteResult(
-          failedWriteResult
+        const tablatureInstructionRenderizationErrorDetails =
+          TablatureInstructionRenderizationErrorDetails.createFromTablatureInstructionRenderizationError(
+            tablatureInstructionRenderizationError
+          );
+
+        expect(tablatureInstructionRenderizationErrorDetails.instruction).toBe(
+          tablatureInstructionRenderizationError.instruction
         );
-
-      expect(tabInstructionRenderizationError.instruction).toBe(parsedInstruction.value);
-      expect(tabInstructionRenderizationError.instructionStartIndex).toBe(
-        parsedInstruction.readFromIndex
-      );
-      expect(tabInstructionRenderizationError.instructionEndIndex).toBe(
-        parsedInstruction.readToIndex
-      );
-      expect(tabInstructionRenderizationError.renderizationErrorType).toBe(
-        failedWriteResult.failureReasonIdentifier
-      );
-      expect(tabInstructionRenderizationError.renderizationErrorMessage).toBe(
-        failedWriteResult.failureMessage
-      );
-      expect(tabInstructionRenderizationError.childInstructionsRenderizationErrors).toBe(null);
-    });
-
-    it('should create an instance from a failed write result with child results', () => {
-      const childResult = getTestFailedWriteResult();
-      const failedWriteResult = getTestFailedWriteResult({ childResults: [childResult] });
-      const parsedInstruction = failedWriteResult.instructionWriter.parsedInstruction;
-
-      const tabInstructionRenderizationError =
-        TablatureInstructionRenderizationErrorDetails.createFromFailedWriteResult(
-          failedWriteResult
+        expect(tablatureInstructionRenderizationErrorDetails.instructionStartIndex).toBe(
+          tablatureInstructionRenderizationError.instructionStartIndex
         );
-
-      const tabInstructionRenderizationChildError =
-        TablatureInstructionRenderizationErrorDetails.createFromFailedWriteResult(childResult);
-
-      expect(tabInstructionRenderizationError.instruction).toBe(parsedInstruction.value);
-      expect(tabInstructionRenderizationError.instructionStartIndex).toBe(
-        parsedInstruction.readFromIndex
-      );
-      expect(tabInstructionRenderizationError.instructionEndIndex).toBe(
-        parsedInstruction.readToIndex
-      );
-      expect(tabInstructionRenderizationError.renderizationErrorType).toBe(
-        failedWriteResult.failureReasonIdentifier
-      );
-      expect(tabInstructionRenderizationError.renderizationErrorMessage).toBe(
-        failedWriteResult.failureMessage
-      );
-      expect(tabInstructionRenderizationError.childInstructionsRenderizationErrors).toEqual([
-        tabInstructionRenderizationChildError,
-      ]);
-    });
-  });
-
-  describe(TablatureInstructionRenderizationErrorDetails.createFromFailedWriteResults.name, () => {
-    it('should create instances for each failed write result', () => {
-      expect.assertions(3);
-
-      const failedWriteResult1 = getTestFailedWriteResult();
-      const failedWriteResult2 = getTestFailedWriteResult();
-
-      const failedWriteResults = [failedWriteResult1, failedWriteResult2];
-      const expectedTabInstructionRenderizationErrors = failedWriteResults.map(
-        (failedWriteResult) =>
-          TablatureInstructionRenderizationErrorDetails.createFromFailedWriteResult(
-            failedWriteResult
-          )
-      );
-
-      const createFromFailedWriteResultSpy = jest.spyOn(
-        TablatureInstructionRenderizationErrorDetails,
-        'createFromFailedWriteResult'
-      );
-
-      const tabInstructionRenderizationErrors =
-        TablatureInstructionRenderizationErrorDetails.createFromFailedWriteResults(
-          failedWriteResults
+        expect(tablatureInstructionRenderizationErrorDetails.instructionEndIndex).toBe(
+          tablatureInstructionRenderizationError.instructionEndIndex
         );
-
-      expect(tabInstructionRenderizationErrors).toEqual(expectedTabInstructionRenderizationErrors);
-      failedWriteResults.forEach((failedWriteResult, i) => {
-        expect(createFromFailedWriteResultSpy).toHaveBeenNthCalledWith(i + 1, failedWriteResult);
+        expect(tablatureInstructionRenderizationErrorDetails.renderizationErrorType).toBe(
+          tablatureInstructionRenderizationError.renderizationErrorType
+        );
+        expect(tablatureInstructionRenderizationErrorDetails.renderizationErrorMessage).toBe(
+          tablatureInstructionRenderizationError.renderizationErrorMessage
+        );
+        expect(
+          tablatureInstructionRenderizationErrorDetails.childInstructionsRenderizationErrors
+        ).toBe(tablatureInstructionRenderizationError.childInstructionsRenderizationErrors);
       });
+    }
+  );
 
-      createFromFailedWriteResultSpy.mockRestore();
-    });
-  });
+  describe(
+    TablatureInstructionRenderizationErrorDetails.createFromTablatureInstructionRenderizationErrors
+      .name,
+    () => {
+      it('should create instances from an array of TablatureInstructionRenderizationErrorDTO instances', () => {
+        const instruction = 'instruction';
+        const tablatureInstructionRenderizationError =
+          new TablatureInstructionRenderizationErrorDTO({
+            instruction,
+            instructionStartIndex: 0,
+            instructionEndIndex: instruction.length - 1,
+            renderizationErrorType: 'RENDERIZATION_ERROR_TYPE',
+            renderizationErrorMessage: 'Renderization Error Message',
+            childInstructionsRenderizationErrors: null,
+          });
+
+        const tablatureInstructionsRenderizationErrorsDetails =
+          TablatureInstructionRenderizationErrorDetails.createFromTablatureInstructionRenderizationErrors(
+            [tablatureInstructionRenderizationError]
+          );
+
+        const tablatureInstructionRenderizationErrorDetails =
+          tablatureInstructionsRenderizationErrorsDetails[0];
+
+        expect(tablatureInstructionRenderizationErrorDetails.instruction).toBe(
+          tablatureInstructionRenderizationError.instruction
+        );
+        expect(tablatureInstructionRenderizationErrorDetails.instructionStartIndex).toBe(
+          tablatureInstructionRenderizationError.instructionStartIndex
+        );
+        expect(tablatureInstructionRenderizationErrorDetails.instructionEndIndex).toBe(
+          tablatureInstructionRenderizationError.instructionEndIndex
+        );
+        expect(tablatureInstructionRenderizationErrorDetails.renderizationErrorType).toBe(
+          tablatureInstructionRenderizationError.renderizationErrorType
+        );
+        expect(tablatureInstructionRenderizationErrorDetails.renderizationErrorMessage).toBe(
+          tablatureInstructionRenderizationError.renderizationErrorMessage
+        );
+        expect(
+          tablatureInstructionRenderizationErrorDetails.childInstructionsRenderizationErrors
+        ).toBe(tablatureInstructionRenderizationError.childInstructionsRenderizationErrors);
+      });
+    }
+  );
 });

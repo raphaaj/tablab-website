@@ -1,8 +1,8 @@
+import { TablatureInstructionRenderizationErrorDTO } from '@server/services/tablature/dtos/tablature-instruction-renderization-error-dto';
 import { ServerSideTranslationUtils } from '@server/utils/translation-utils';
 import { CommonErrorsFactory } from '@server/view-models/error/common-errors-factory';
 import { TablatureErrorsFactory } from '@server/view-models/tablature/tablature-errors-factory';
 import { TablatureRenderizationError } from '@server/view-models/tablature/tablature-renderization-error';
-import { getTestFailedWriteResult } from '@test-utils/failed-write-result-generator';
 import { NextApiRequest } from 'next';
 import httpMocks from 'node-mocks-http';
 
@@ -62,9 +62,20 @@ describe(TablatureErrorsFactory.name, () => {
         .spyOn(ServerSideTranslationUtils, 'getServerSideTranslation')
         .mockResolvedValue(translationFunction);
 
-      const failedWriteResult = getTestFailedWriteResult();
-      const failedWriteResults = [failedWriteResult];
-      const error = await errorsFactory.getTablatureRenderizationError(failedWriteResults);
+      const instruction = 'instruction';
+      const tablatureInstructionsRenderizationErrors = [
+        new TablatureInstructionRenderizationErrorDTO({
+          instruction,
+          instructionEndIndex: instruction.length - 1,
+          instructionStartIndex: 0,
+          renderizationErrorMessage: 'Renderization Error Message',
+          renderizationErrorType: 'RENDERIZATION_ERROR_TYPE',
+          childInstructionsRenderizationErrors: null,
+        }),
+      ];
+      const error = await errorsFactory.getTablatureRenderizationError(
+        tablatureInstructionsRenderizationErrors
+      );
 
       expect(error).toBeInstanceOf(TablatureRenderizationError);
       expect(getServerSideTranslationSpy).toHaveBeenCalledWith(locale, expect.any(Array));

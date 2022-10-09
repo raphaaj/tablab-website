@@ -30,7 +30,6 @@ export class CommonErrorsFactory extends BaseErrorsFactory {
     const t = await this._getTFunction();
 
     return new InvalidContentSyntaxError({
-      locale: this.locale,
       message: t(`errors:code2message.${InvalidContentSyntaxError.ERROR_CODE}`),
       request: this.request,
       validationErrors,

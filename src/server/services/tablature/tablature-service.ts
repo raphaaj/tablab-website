@@ -1,12 +1,57 @@
 import { BaseTablatureService } from '@server/services/tablature/base-tablature-service';
 import { TablatureCreationDataDTO } from '@server/services/tablature/dtos/tablature-creation-data-dto';
+import { TablatureCreationOptionsDTO } from '@server/services/tablature/dtos/tablature-creation-options-dto';
 import { TablatureCreationResultDTO } from '@server/services/tablature/dtos/tablature-creation-result-dto';
 import { TablatureDTO } from '@server/services/tablature/dtos/tablature-dto';
+import { TablatureInstructionRenderizationErrorDTO } from '@server/services/tablature/dtos/tablature-instruction-renderization-error-dto';
 import { FailedWriteResult, MethodInstruction, Parser, Tab } from 'tablab';
+import { localizeEnUs, localizePtBr, Localizer } from 'tablab-i18n';
 
 export class TablatureService extends BaseTablatureService {
+  private static readonly DEFAULT_TABLAB_LOCALIZE = localizeEnUs;
+
+  private static readonly LOCALE_TO_TABLAB_LOCALIZE_MAP: Map<string, Localizer> = new Map([
+    ['en-US', localizeEnUs],
+    ['pt-BR', localizePtBr],
+  ]);
+
+  private static _createTablatureInstructionRenderizationErrorDTOFromFailedWriteResult(
+    failedWriteResult: FailedWriteResult
+  ): TablatureInstructionRenderizationErrorDTO {
+    const parsedInstruction = failedWriteResult.instructionWriter.parsedInstruction;
+
+    let childInstructionsRenderizationErrors: TablatureInstructionRenderizationErrorDTO[] | null =
+      null;
+    if (failedWriteResult.childResults) {
+      childInstructionsRenderizationErrors =
+        TablatureService._createTablatureInstructionRenderizationErrorDTOsFromFailedWriteResults(
+          failedWriteResult.childResults.filter((childWriteResult) => !childWriteResult.success)
+        );
+    }
+
+    return new TablatureInstructionRenderizationErrorDTO({
+      instruction: parsedInstruction.value,
+      instructionStartIndex: parsedInstruction.readFromIndex,
+      instructionEndIndex: parsedInstruction.readToIndex,
+      renderizationErrorType: failedWriteResult.failureReasonIdentifier as string,
+      renderizationErrorMessage: failedWriteResult.failureMessage as string,
+      childInstructionsRenderizationErrors,
+    });
+  }
+
+  private static _createTablatureInstructionRenderizationErrorDTOsFromFailedWriteResults(
+    failedWriteResults: FailedWriteResult[]
+  ): TablatureInstructionRenderizationErrorDTO[] {
+    return failedWriteResults.map((failedWriteResult) =>
+      TablatureService._createTablatureInstructionRenderizationErrorDTOFromFailedWriteResult(
+        failedWriteResult
+      )
+    );
+  }
+
   public async createTablature(
-    tablatureCreationData: TablatureCreationDataDTO
+    tablatureCreationData: TablatureCreationDataDTO,
+    tablatureCreationOptions: TablatureCreationOptionsDTO = {}
   ): Promise<TablatureCreationResultDTO> {
     const tabRenderizationResult = await this._renderTablature(tablatureCreationData.instructions, {
       initialSpacing: tablatureCreationData.initialSpacing,
@@ -33,8 +78,24 @@ export class TablatureService extends BaseTablatureService {
     } else {
       const { failedWriteResults } = tabRenderizationResult;
 
+      let tablabLocalize = TablatureService.DEFAULT_TABLAB_LOCALIZE;
+      if (
+        tablatureCreationOptions.locale &&
+        TablatureService.LOCALE_TO_TABLAB_LOCALIZE_MAP.has(tablatureCreationOptions.locale)
+      ) {
+        tablabLocalize = TablatureService.LOCALE_TO_TABLAB_LOCALIZE_MAP.get(
+          tablatureCreationOptions.locale
+        ) as Localizer;
+      }
+      tablabLocalize(failedWriteResults);
+
+      const instructionsRenderizationErrors =
+        TablatureService._createTablatureInstructionRenderizationErrorDTOsFromFailedWriteResults(
+          failedWriteResults
+        );
+
       tablatureCreationResult = {
-        failedWriteResults,
+        instructionsRenderizationErrors,
         success: false,
       };
     }

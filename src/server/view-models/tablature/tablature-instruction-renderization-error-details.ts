@@ -1,40 +1,31 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 import { TablatureInstructionRenderizationErrorDetails as CommonTablatureInstructionRenderizationErrorDetails } from '@common/view-models/tablature/tablature-renderization-error';
-import { FailedWriteResult } from 'tablab';
+import { TablatureInstructionRenderizationErrorDTO } from '@server/services/tablature/dtos/tablature-instruction-renderization-error-dto';
 
 export class TablatureInstructionRenderizationErrorDetails
   implements CommonTablatureInstructionRenderizationErrorDetails
 {
-  public static createFromFailedWriteResult(
-    failedWriteResult: FailedWriteResult
+  public static createFromTablatureInstructionRenderizationError(
+    tablatureInstructionRenderizationError: TablatureInstructionRenderizationErrorDTO
   ): TablatureInstructionRenderizationErrorDetails {
-    const parsedInstruction = failedWriteResult.instructionWriter.parsedInstruction;
-
-    let childInstructionsRenderizationErrors:
-      | TablatureInstructionRenderizationErrorDetails[]
-      | null = null;
-    if (failedWriteResult.childResults) {
-      childInstructionsRenderizationErrors =
-        TablatureInstructionRenderizationErrorDetails.createFromFailedWriteResults(
-          failedWriteResult.childResults.filter((childWriteResult) => !childWriteResult.success)
-        );
-    }
-
     return new TablatureInstructionRenderizationErrorDetails({
-      instruction: parsedInstruction.value,
-      instructionStartIndex: parsedInstruction.readFromIndex,
-      instructionEndIndex: parsedInstruction.readToIndex,
-      renderizationErrorType: failedWriteResult.failureReasonIdentifier as string,
-      renderizationErrorMessage: failedWriteResult.failureMessage as string,
-      childInstructionsRenderizationErrors,
+      instruction: tablatureInstructionRenderizationError.instruction,
+      instructionStartIndex: tablatureInstructionRenderizationError.instructionStartIndex,
+      instructionEndIndex: tablatureInstructionRenderizationError.instructionEndIndex,
+      renderizationErrorType: tablatureInstructionRenderizationError.renderizationErrorType,
+      renderizationErrorMessage: tablatureInstructionRenderizationError.renderizationErrorMessage,
+      childInstructionsRenderizationErrors:
+        tablatureInstructionRenderizationError.childInstructionsRenderizationErrors,
     });
   }
 
-  public static createFromFailedWriteResults(
-    failedWriteResults: FailedWriteResult[]
+  public static createFromTablatureInstructionRenderizationErrors(
+    tablatureInstructionRenderizationErrors: TablatureInstructionRenderizationErrorDTO[]
   ): TablatureInstructionRenderizationErrorDetails[] {
-    return failedWriteResults.map((failedWriteResult) =>
-      TablatureInstructionRenderizationErrorDetails.createFromFailedWriteResult(failedWriteResult)
+    return tablatureInstructionRenderizationErrors.map((tablatureInstructionRenderizationError) =>
+      TablatureInstructionRenderizationErrorDetails.createFromTablatureInstructionRenderizationError(
+        tablatureInstructionRenderizationError
+      )
     );
   }
 

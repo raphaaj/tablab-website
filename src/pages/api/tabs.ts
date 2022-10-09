@@ -6,7 +6,7 @@ import { ServerSideTranslationUtils } from '@server/utils/translation-utils';
 import { InternalError } from '@server/view-models/error/internal-error';
 import { InvalidContentSyntaxError } from '@server/view-models/error/invalid-content-syntax-error';
 import { InvalidHttpMethodError } from '@server/view-models/error/invalid-http-method-error';
-import { validateTablatureCreationObject } from '@server/view-models/tablature/tablature-creation-request';
+import { TablatureCreationRequestValidator } from '@server/view-models/tablature/tablature-creation-request-validator';
 import { TablatureCreationResponse } from '@server/view-models/tablature/tablature-creation-response';
 import { TablatureErrorsFactory } from '@server/view-models/tablature/tablature-errors-factory';
 import { TablatureRenderizationError } from '@server/view-models/tablature/tablature-renderization-error';
@@ -41,21 +41,27 @@ export function createTabsApiHandler(tablatureService: BaseTablatureService): Ta
         return response.status(405).json(result);
       }
 
-      if (!validateTablatureCreationObject(request.body)) {
-        const validationErrors = validateTablatureCreationObject.errors;
+      const tablatureCreationRequestValidator = new TablatureCreationRequestValidator(locale);
+
+      if (!tablatureCreationRequestValidator.isTablatureCreationRequestObjectValid(request.body)) {
+        const validationErrors = tablatureCreationRequestValidator.validationErrors;
 
         result = await tablatureErrorsFactory.getInvalidContentSyntaxError(validationErrors);
         return response.status(400).json(result);
       }
 
       const tablatureCreationResult = await tablatureService.createTablature(
-        new TablatureCreationDataDTO(request.body)
+        new TablatureCreationDataDTO(request.body),
+        { locale }
       );
 
       if (!tablatureService.isSuccessfulTablatureCreationResult(tablatureCreationResult)) {
-        const failedWriteResults = tablatureCreationResult.failedWriteResults;
+        const instructionsRenderizationErrors =
+          tablatureCreationResult.instructionsRenderizationErrors;
 
-        result = await tablatureErrorsFactory.getTablatureRenderizationError(failedWriteResults);
+        result = await tablatureErrorsFactory.getTablatureRenderizationError(
+          instructionsRenderizationErrors
+        );
         return response.status(422).json(result);
       }
 

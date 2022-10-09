@@ -1,13 +1,12 @@
 import { ErrorCode } from '@common/enums/error-code';
-import { createTabsApiHandler } from '@pages/api/tabs';
+import defaultTabsApiHandler, { createTabsApiHandler } from '@pages/api/tabs';
 import { BaseTablatureService } from '@server/services/tablature/base-tablature-service';
 import { TablatureCreationDataDTO } from '@server/services/tablature/dtos/tablature-creation-data-dto';
 import { TablatureCreationResultDTO } from '@server/services/tablature/dtos/tablature-creation-result-dto';
 import { TablatureDTO } from '@server/services/tablature/dtos/tablature-dto';
-import { getTestFailedWriteResult } from '@test-utils/failed-write-result-generator';
+import { TablatureInstructionRenderizationErrorDTO } from '@server/services/tablature/dtos/tablature-instruction-renderization-error-dto';
 import { NextApiRequest, NextApiResponse } from 'next';
 import httpMocks, { RequestMethod } from 'node-mocks-http';
-import { FailedWriteResult } from 'tablab';
 
 const URL = '/api/tabs';
 
@@ -30,16 +29,19 @@ class SuccessfulTablatureCreationTabService extends BaseTablatureService {
 }
 
 class FailedTabCreationTabService extends BaseTablatureService {
-  public failedWriteResults: FailedWriteResult[];
+  public instructionsRenderizationErrors: TablatureInstructionRenderizationErrorDTO[];
 
-  public constructor(failedWriteResults: FailedWriteResult[]) {
+  public constructor(instructionsRenderizationErrors: TablatureInstructionRenderizationErrorDTO[]) {
     super();
 
-    this.failedWriteResults = failedWriteResults;
+    this.instructionsRenderizationErrors = instructionsRenderizationErrors;
   }
 
   public createTablature(): Promise<TablatureCreationResultDTO> {
-    return Promise.resolve({ failedWriteResults: this.failedWriteResults, success: false });
+    return Promise.resolve({
+      success: false,
+      instructionsRenderizationErrors: this.instructionsRenderizationErrors,
+    });
   }
 }
 
@@ -64,6 +66,10 @@ function getRequestBody(customOptions: TablatureCreationRequest = {}): Tablature
 }
 
 describe(URL, () => {
+  it('should have a default handler', () => {
+    expect(defaultTabsApiHandler).toBeDefined();
+  });
+
   describe('http methods handling', () => {
     it.each<RequestMethod>(['GET', 'PUT', 'PATCH', 'DELETE'])(
       'should return a 405 if HTTP method is %s',
@@ -346,7 +352,9 @@ describe(URL, () => {
 
       expect(response.statusCode).toBe(201);
       expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body));
+      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body), {
+        locale: expect.any(String),
+      });
       expect(responseBody.title).toBe(null);
       expect(responseBody.observations).toBe(null);
       expect(responseBody.numberOfStrings).toBe(requestBody.numberOfStrings);
@@ -378,7 +386,9 @@ describe(URL, () => {
 
       expect(response.statusCode).toBe(201);
       expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body));
+      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body), {
+        locale: expect.any(String),
+      });
       expect(responseBody.title).toBe(title);
       expect(responseBody.observations).toBe(null);
       expect(responseBody.numberOfStrings).toBe(requestBody.numberOfStrings);
@@ -410,7 +420,9 @@ describe(URL, () => {
 
       expect(response.statusCode).toBe(201);
       expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body));
+      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body), {
+        locale: expect.any(String),
+      });
       expect(responseBody.title).toBe(null);
       expect(responseBody.observations).toBe(observations);
       expect(responseBody.numberOfStrings).toBe(requestBody.numberOfStrings);
@@ -431,8 +443,17 @@ describe(URL, () => {
       });
       const response = httpMocks.createResponse<NextApiResponse>();
 
-      const failedWriteResult = getTestFailedWriteResult();
-      const tabService = new FailedTabCreationTabService([failedWriteResult]);
+      const instruction = 'instruction';
+      const instructionRenderizationError = new TablatureInstructionRenderizationErrorDTO({
+        instruction,
+        instructionStartIndex: 0,
+        instructionEndIndex: instruction.length - 1,
+        renderizationErrorType: 'RENDERIZATION_ERROR_TYPE',
+        renderizationErrorMessage: 'Renderization Error Message',
+        childInstructionsRenderizationErrors: null,
+      });
+
+      const tabService = new FailedTabCreationTabService([instructionRenderizationError]);
       const createTabSpy = jest.spyOn(tabService, 'createTablature');
       const tabsHandler = createTabsApiHandler(tabService);
       await tabsHandler(request, response);
@@ -442,7 +463,9 @@ describe(URL, () => {
 
       expect(response.statusCode).toBe(422);
       expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body));
+      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body), {
+        locale: expect.any(String),
+      });
       expect(responseBody.errorCode).toBe(ErrorCode.Tab_RenderizationError);
       expect(responseBody.details.instructionsRenderizationErrors).toBeDefined();
       expect(responseHeaders['content-type']).toBe('application/json');
@@ -470,7 +493,9 @@ describe(URL, () => {
 
       expect(response.statusCode).toBe(500);
       expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body));
+      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body), {
+        locale: expect.any(String),
+      });
       expect(responseBody.errorCode).toBe(ErrorCode.Common_UnknownError);
       expect(responseBody.details).toBe(null);
       expect(responseHeaders['content-type']).toBe('application/json');
