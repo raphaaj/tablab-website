@@ -42,7 +42,7 @@ const TopAppBar: FC<TopAppBarProps> = ({ showMenu = false, currentPath, currentL
     <AppBar position="static" sx={{ flexGrow: 1, mb: 2 }}>
       <Toolbar
         sx={(theme) => ({
-          [theme.breakpoints.up('md')]: {
+          [theme.breakpoints.up('lg')]: {
             marginLeft: '16.66%',
             marginRight: '16.66%',
           },
