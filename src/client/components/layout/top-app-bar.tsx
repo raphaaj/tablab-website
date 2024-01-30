@@ -12,7 +12,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 import { useTranslation } from 'next-i18next';
-import { FC, useState } from 'react';
+import { FC, memo, useState } from 'react';
 
 export interface TopAppBarProps {
   currentLocale?: string;
@@ -159,4 +159,4 @@ const TopAppBar: FC<TopAppBarProps> = ({ showMenu = false, currentPath, currentL
   );
 };
 
-export default TopAppBar;
+export default memo(TopAppBar);

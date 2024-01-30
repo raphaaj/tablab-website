@@ -8,6 +8,7 @@ export type TablatureBlockAlignmentOption = 'left' | 'right' | 'center';
 export interface TablatureBlockContainerProps {
   align?: TablatureBlockAlignmentOption;
   children?: React.ReactNode;
+  disableGutters?: boolean;
   fullWidth?: boolean;
   label: string;
 }
@@ -15,6 +16,7 @@ export interface TablatureBlockContainerProps {
 const TablatureBlockContainer: FC<TablatureBlockContainerProps> = (props) => {
   const tablatureBlockAlignmentOption: TablatureBlockAlignmentOption = props.align ?? 'center';
   const fullWidthTablatureBlock = props.fullWidth ?? true;
+  const disableGutters = props.disableGutters ?? false;
 
   let tableMarginLeft: string | number = 'auto';
   let tableMarginRight: string | number = 'auto';
@@ -25,7 +27,7 @@ const TablatureBlockContainer: FC<TablatureBlockContainerProps> = (props) => {
   }
 
   return (
-    <TableContainer sx={{ marginBottom: '1rem' }}>
+    <TableContainer sx={disableGutters ? {} : { marginBottom: '1rem' }}>
       <Table
         sx={{
           width: fullWidthTablatureBlock ? '100%' : 'auto',

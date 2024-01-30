@@ -3,11 +3,8 @@
  * * https://mui.com/guides/routing/#next-js
  * * https://github.com/mui/material-ui/blob/master/examples/nextjs-with-typescript/src/Link.tsx
  */
-import { styled } from '@mui/material/styles';
 import NextLink, { LinkProps as NextLinkProps } from 'next/link';
-import { forwardRef } from 'react';
-
-const Anchor = styled('a')({});
+import { forwardRef, memo } from 'react';
 
 interface NextLinkComposedProps
   extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'>,
@@ -31,10 +28,10 @@ export const NextLinkComposed = forwardRef<HTMLAnchorElement, NextLinkComposedPr
         passHref
         locale={locale}
       >
-        <Anchor ref={ref} {...other} />
+        <a ref={ref} {...other}></a>
       </NextLink>
     );
   }
 );
 
-export default NextLinkComposed;
+export default memo(NextLinkComposed);

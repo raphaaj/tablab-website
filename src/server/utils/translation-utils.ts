@@ -34,7 +34,7 @@ export class ServerSideTranslationUtils {
     if (namespacesRequired)
       await ServerSideTranslationUtils._loadMissingResources(locale, namespacesRequired);
 
-    return i18next.getFixedT(locale);
+    return i18next.getFixedT(locale, namespacesRequired);
   }
 
   private static async _loadMissingResources(locale: string, namespaces: string[]): Promise<void> {

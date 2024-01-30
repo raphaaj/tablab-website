@@ -1,27 +1,27 @@
-import { useEffect, useState } from 'react';
+import { useLayoutEffect } from '@client/hooks/use-isomorphic-layout-effect';
+import { useCallback, useEffect, useState } from 'react';
 
 export interface WindowSize {
-  height: number | null;
-  width: number | null;
+  height: number;
+  width: number;
 }
 
 export function useWindowSize() {
-  const [windowSize, setWindowSize] = useState<WindowSize>({ height: null, width: null });
+  const [windowSize, setWindowSize] = useState<WindowSize>({ height: 0, width: 0 });
+
+  const updateWindowSize = useCallback(() => {
+    setWindowSize({
+      height: window.innerHeight,
+      width: window.innerWidth,
+    });
+  }, []);
+
+  useLayoutEffect(updateWindowSize, [updateWindowSize]);
 
   useEffect(() => {
-    function syncWindowSize() {
-      setWindowSize({
-        height: window.innerHeight,
-        width: window.innerWidth,
-      });
-    }
-
-    syncWindowSize();
-
-    window.addEventListener('resize', syncWindowSize);
-
-    return () => window.removeEventListener('resize', syncWindowSize);
-  }, []);
+    window.addEventListener('resize', updateWindowSize);
+    return () => window.removeEventListener('resize', updateWindowSize);
+  }, [updateWindowSize]);
 
   return windowSize;
 }

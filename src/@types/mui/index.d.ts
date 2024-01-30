@@ -7,23 +7,17 @@
 import '@mui/material/styles';
 
 declare module '@mui/material/styles' {
+  interface FontFamilies {
+    brand: string;
+    default: string;
+    monospace: string;
+  }
+
   interface Theme {
-    typography: {
-      fontFamilies: {
-        brand: string;
-        default: string;
-        monospace: string;
-      };
-    };
+    fontFamilies: FontFamilies;
   }
 
   interface ThemeOptions {
-    typography?: {
-      fontFamilies?: {
-        brand?: string;
-        default?: string;
-        monospace?: string;
-      };
-    };
+    fontFamilies?: Partial<FontFamilies>;
   }
 }

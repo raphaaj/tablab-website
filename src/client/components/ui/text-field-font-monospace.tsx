@@ -13,7 +13,7 @@ export default function TextFieldFontMonospace({
         ...inputProps,
         sx: {
           ...inputProps?.sx,
-          fontFamily: (theme: Theme) => theme.typography.fontFamilies.monospace,
+          fontFamily: (theme: Theme) => theme.fontFamilies.monospace,
         },
       }}
     >

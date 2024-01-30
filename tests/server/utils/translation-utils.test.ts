@@ -65,22 +65,22 @@ describe(ServerSideTranslationUtils.name, () => {
         const t = await ServerSideTranslationUtils.getServerSideTranslation(locale);
 
         expect(typeof t).toBe('function');
-        expect(getFixedTSpy).toHaveBeenCalledWith(locale);
+        expect(getFixedTSpy).toHaveBeenCalledWith(locale, undefined);
 
         getFixedTSpy.mockRestore();
       }
     );
 
     it.each(LOCALES)(
-      'should load the required namespaces that are not yet loaded - %s',
+      'should return a translation function for the given locale with the required namespaces loaded - %s',
       async (locale) => {
-        expect.assertions(5);
-
         const namespacesData = getTestNamespacesData();
-        const namespacesRequired = namespacesData.map((nd) => nd.identifier);
-        const notLoadedNamespaces = namespacesData
+        const namespacesIdentifiers = namespacesData.map((nd) => nd.identifier);
+        const namespacesIdentifiersNotLoaded = namespacesData
           .filter((nd) => !nd.loaded)
           .map((nd) => nd.identifier);
+
+        const getFixedTSpy = jest.spyOn(i18next, 'getFixedT');
 
         const hasResourceBundleSpy = jest
           .spyOn(i18next, 'hasResourceBundle')
@@ -90,12 +90,20 @@ describe(ServerSideTranslationUtils.name, () => {
           .spyOn(i18next, 'loadNamespaces')
           .mockImplementation(createLoadNamespacesMock(namespacesData));
 
-        await ServerSideTranslationUtils.getServerSideTranslation(locale, namespacesRequired);
+        const t = await ServerSideTranslationUtils.getServerSideTranslation(
+          locale,
+          namespacesIdentifiers
+        );
 
-        namespacesRequired.forEach((ns, i) =>
+        expect(typeof t).toBe('function');
+        expect(getFixedTSpy).toHaveBeenCalledWith(locale, namespacesIdentifiers);
+
+        namespacesIdentifiers.forEach((ns, i) =>
           expect(hasResourceBundleSpy).toHaveBeenNthCalledWith(i + 1, locale, ns)
         );
-        notLoadedNamespaces.forEach((ns) => expect(loadNamespacesSpy).toHaveBeenCalledWith(ns));
+        namespacesIdentifiersNotLoaded.forEach((ns) =>
+          expect(loadNamespacesSpy).toHaveBeenCalledWith(ns)
+        );
         namespacesData.forEach((nd) => expect(nd.loaded).toBe(true));
 
         hasResourceBundleSpy.mockRestore();

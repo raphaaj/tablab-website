@@ -4,7 +4,7 @@ import InvalidInstructionsFeedback from '@client/components/pages/editor/invalid
 import Tablature from '@client/components/tablature/tablature';
 import TablatureSkeleton from '@client/components/tablature/tablature-skeleton';
 import TextFieldFontMonospace from '@client/components/ui/text-field-font-monospace';
-import { useElementSize } from '@client/hooks/use-element-size';
+import { useHtmlElementSize } from '@client/hooks/use-html-element-size';
 import { TablatureCreationError } from '@client/models/tablature/tablature-creation-error';
 import { TablatureService } from '@client/services/tablature-service';
 import { TablatureInstructionRenderizationErrorDetails } from '@common/view-models/tablature/tablature-renderization-error';
@@ -80,7 +80,7 @@ export default function Editor() {
   const router = useRouter();
   const { t } = useTranslation('editor');
 
-  const contentGridRef = useRef(null);
+  const contentGridRef = useRef<HTMLDivElement | null>(null);
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
@@ -98,7 +98,7 @@ export default function Editor() {
   const [invalidInstructions, setInvalidInstructions] = useState<InvalidInstruction[] | null>(null);
   const [tabCreationError, setTabCreationError] = useState<unknown | null>(null);
 
-  const contentGridSize = useElementSize(contentGridRef.current);
+  const contentGridSize = useHtmlElementSize(contentGridRef.current);
 
   const toggleShowAdvancedOptions = () => {
     setShowAdvancedOptions(!showAdvancedOptions);

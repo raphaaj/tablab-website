@@ -1,3 +1,155 @@
 {
-  "name": "Sobre"
+  "sections": {
+    "introduction": {
+      "name": "Introdução",
+      "introduction": "Tablab é uma aplicação web para escrever tablaturas de maneira prática e rápida. Para isso, são disponibilizadas uma série de instruções, que permitem escrever e configurar elementos na tablatura de maneira atômica. Ao realizar a composição dessas instruções, é possível escrever os mais diferentes tipos de tablaturas."
+    },
+    "basicInstruction": {
+      "name": "Instrução Básica",
+      "introduction": "A instrução básica é a instrução base do Tablab. Ela permite a escrita de uma determinada nota na tablatura a partir do número da corda e do número da casa referentes à essa nota. Sua utilização ocorre da seguinte forma:",
+      "instructionSyntax": "número_da_corda-número_da_casa",
+      "examplesIntroduction": "Abaixo são indicados alguns exemplos de instruções básicas e seus efeitos e resultados na tablatura:",
+      "examplesTable": {
+        "description": "Exemplos de instruções básicas e seus efeitos e resultados na tablatura",
+        "headers": {
+          "instruction": "Instrução Básica",
+          "description": "Efeito",
+          "result": "Resultado na Tablatura"
+        }
+      },
+      "childSections": {
+        "techniques": {
+          "name": "Técnicas",
+          "introduction": "A instrução básica também permite a indicação de eventuais técnicas utilizadas para tocar determinadas notas, como <tablatureTechniqueName>bend</tablatureTechniqueName>, <tablatureTechniqueName>slide</tablatureTechniqueName>, <tablatureTechniqueName>hammer-on</tablatureTechniqueName>, <tablatureTechniqueName>pull-off</tablatureTechniqueName>, dentre outras. Para isso, basta indicar a técnica desejada na instrução básica, após o número da casa. Dessa forma, a utilização da instrução básica com indicação de técnica ocorre da seguinte forma:",
+          "instructionSyntax": "número_da_corda-número_da_casa_com_técnica",
+          "examplesIntroduction": "Abaixo são indicados alguns exemplos de instruções básicas com indicação de técnica e seus resultados na tablatura:",
+          "examplesTable": {
+            "headers": {
+              "technique": "Técnica",
+              "instruction": "Instrução Básica",
+              "result": "Resultado na Tablatura"
+            }
+          },
+          "relevantObservations": {
+            "useOfOtherTechniques": "As técnicas indicadas acima não são as únicas suportadas pelo Tablab. Na verdade, qualquer indicação adicionada após o número da casa na instrução básica será considerada como uma técnica e será escrita na tablatura logo após a casa indicada.",
+            "motivationToUseOtherTechniques": "Fique a vontate para utilizar as notações e técnicas que melhor expressarem suas necessidades!"
+          }
+        }
+      }
+    },
+    "advancedInstructions": {
+      "name": "Instruções Avançadas",
+      "introduction": "Além da instrução básica, o Tablab disponibiliza instruções adicionais para auxiliar no processo de escrita das tablaturas. Essas instruções extendem a capacidade do Tablab, permitindo:",
+      "extendedCapabilities": {
+        "newNotes": "Escrever notas nas tablaturas que não são possíveis apenas com a utilização de instruções básicas",
+        "writingMadeEasy": "Maior praticidade e conveniência no processo de escrita das tablaturas",
+        "formatAndCustomization": "Formatar e customizar a disposição das notas nas tablaturas",
+        "sections": "Demarcar seções nas tablaturas"
+      },
+      "introductionForInstructionSynatx": {
+        "extended": "Forma extendida:",
+        "short": "Forma abreviada:"
+      },
+      "childSections": {
+        "merge": {
+          "name": "Merge",
+          "introduction": "A instrução <mergeInstructionCode /> permite a escrita de múltiplas instruções básicas no mesmo tempo da tablatura, ou seja, na mesma posição vertical, sendo indispensável para a escrita de acordes e notas compostas na tablatura. Ela pode ser utilizada em qualquer uma das seguintes formas:",
+          "instructionSyntaxWithoutInstructionIdentifier": "{ instruções_básicas }",
+          "extendedInstructionSyntax": "merge $t(sections.advancedInstructions.childSections.merge.instructionSyntaxWithoutInstructionIdentifier)",
+          "shortInstructionSyntax": "m $t(sections.advancedInstructions.childSections.merge.instructionSyntaxWithoutInstructionIdentifier)",
+          "examplesIntroduction": "Abaixo são indicados alguns exemplos de instruções <mergeInstructionCode /> e seus resultados na tablatura:",
+          "examplesTable": {
+            "description": "Exemplos de instruções avançadas do tipo merge e seus resultados na tablatura",
+            "headers": {
+              "instruction": "Instrução Merge",
+              "result": "Resultado na Tablatura"
+            }
+          },
+          "relevantObservations": {
+            "orderOfInstructionsToMerge": "A ordem das instruções básicas na instrução <mergeInstructionCode /> não altera o resultado na tablatura, ou seja, você pode indicar as instruções básicas na ordem que desejar."
+          }
+        },
+        "repeat": {
+          "name": "Repeat",
+          "introduction": "A instrução <repeatInstructionCode /> permite a escrita de instruções na tablatura de maneira repetida, podendo ser utilizada com qualquer tipo de instrução. É bastante útil para a escrita de padrões que se repetem na tablatura. Ela pode ser utilizada em qualquer uma das seguintes formas:",
+          "instructionSyntaxWithoutInstructionIdentifier": "( número_de_repetições ) { instruções_à_repetir }",
+          "extendedInstructionSyntax": "repeat $t(sections.advancedInstructions.childSections.repeat.instructionSyntaxWithoutInstructionIdentifier)",
+          "shortInstructionSyntax": "r $t(sections.advancedInstructions.childSections.repeat.instructionSyntaxWithoutInstructionIdentifier)",
+          "examplesIntroduction": "Abaixo são indicados alguns exemplos de instruções <repeatInstructionCode /> e seus resultados na tablatura:",
+          "examplesTable": {
+            "description": "Exemplos de instruções avançadas do tipo repeat e seus resultados na tablatura",
+            "headers": {
+              "instruction": "Instrução Repeat",
+              "result": "Resultado na Tablatura"
+            }
+          }
+        },
+        "break": {
+          "name": "Break",
+          "introduction": "A instrução <breakInstructionCode /> indica o término do bloco atual da tablatura. Ela indica ao Tablab para escrever as próximas instruções em um novo bloco na tablatura. Ela pode ser utilizada em qualquer uma das seguintes formas:",
+          "extendedInstructionSyntax": "break",
+          "shortInstructionSyntax": "b"
+        },
+        "spacing": {
+          "name": "Spacing",
+          "introduction": "A instrução <spacingInstructionCode /> permite controlar o espaçamento entre as notas da tablatura. O valor do espaçamento define a quantidade de caracteres <spacingCharacterCode /> que serão incluídos entre as notas na tablatura. Ela pode ser utilizada em qualquer uma das seguintes formas:",
+          "instructionSyntaxWithoutInstructionIdentifier": "( número_de_caracteres_de_espaçamento )",
+          "extendedInstructionSyntax": "spacing $t(sections.advancedInstructions.childSections.spacing.instructionSyntaxWithoutInstructionIdentifier)",
+          "shortInstructionSyntax": "s $t(sections.advancedInstructions.childSections.spacing.instructionSyntaxWithoutInstructionIdentifier)",
+          "examplesIntroduction": "Abaixo são indicados alguns exemplos de instruções com uso da instrução <spacingInstructionCode /> e seus resultados na tablatura:",
+          "examplesTable": {
+            "description": "Exemplos de instruções avançadas do tipo spacing e seus resultados na tablatura",
+            "headers": {
+              "instruction": "Instruções com uso da instrução space",
+              "result": "Resultado na Tablatura"
+            }
+          }
+        },
+        "header": {
+          "name": "Header",
+          "introduction": "A instrução <headerInstructionCode /> marca o início de uma seção na tablatura. Essa marcação é acompanhada de um cabeçalho incluído acima do bloco atual da tablatura. Ela pode ser utilizada em qualquer uma das seguintes formas:",
+          "instructionSyntaxWithoutInstructionIdentifier": "( mensagem_do_cabeçalho )",
+          "extendedInstructionSyntax": "header $t(sections.advancedInstructions.childSections.header.instructionSyntaxWithoutInstructionIdentifier)",
+          "shortInstructionSyntax": "h $t(sections.advancedInstructions.childSections.header.instructionSyntaxWithoutInstructionIdentifier)",
+          "examplesIntroduction": "Abaixo são indicados alguns exemplos de instruções com uso da instrução <headerInstructionCode /> e seus resultados na tablatura:",
+          "examplesTable": {
+            "description": "Exemplos de instruções avançadas do tipo header e seus resultados na tablatura",
+            "headers": {
+              "instruction": "Instruções com uso da instrução header",
+              "result": "Resultado na Tablatura"
+            }
+          }
+        },
+        "footer": {
+          "name": "Footer",
+          "introduction": "A instrução <footerInstructionCode /> marca o término de uma seção na tablatura. Essa marcação é precedida de um rodapé incluído abaixo do bloco atual da tablatura. Ela pode ser utilizada em qualquer uma das seguintes formas:",
+          "instructionSyntaxWithoutInstructionIdentifier": "( mensagem_do_rodapé )",
+          "extendedInstructionSyntax": "footer $t(sections.advancedInstructions.childSections.footer.instructionSyntaxWithoutInstructionIdentifier)",
+          "shortInstructionSyntax": "f $t(sections.advancedInstructions.childSections.footer.instructionSyntaxWithoutInstructionIdentifier)",
+          "examplesIntroduction": "Abaixo são indicados alguns exemplos de instruções com uso da instrução <footerInstructionCode /> e seus resultados na tablatura:",
+          "examplesTable": {
+            "description": "Exemplos de instruções avançadas do tipo footer e seus resultados na tablatura",
+            "headers": {
+              "instruction": "Instruções com uso da instrução footer",
+              "result": "Resultado na Tablatura"
+            }
+          }
+        }
+      }
+    },
+    "tablatureComposition": {
+      "name": "Compondo a Tablatura",
+      "introduction": "Para compor uma tablatura no Tablab, é necessário, primeiramente, identificar a sequência de instruções necessárias para escrever as notas da tablatura desejada. Após isso, essas instruções devem ser unificadas de forma espaçada, em uma única instrução. O Tablab irá utilizar essa instrução final para gerar a sua tablatura.",
+      "actions": {
+        "goToEditor": {
+          "label": "Ir para o Editor"
+        }
+      }
+    }
+  },
+  "actions": {
+    "copyToClipboard": {
+      "snackbarMessage": "Copiado para a área de transferência."
+    }
+  }
 }

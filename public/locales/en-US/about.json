@@ -1,3 +1,155 @@
 {
-  "name": "About"
+  "sections": {
+    "introduction": {
+      "name": "Introduction",
+      "introduction": "Tablab is a web application designed for writing tablatures conveniently and swiftly. It offers a collection of instructions allowing users to write and configure elements within the tablature in an atomic manner. By composing these instructions, it becomes possible to create various tablature types."
+    },
+    "basicInstruction": {
+      "name": "Basic Instruction",
+      "introduction": "The basic instruction is the base instruction of Tablab. It allows writing a specific note in the tablature based on the string and fret numbers relative to this note. Its usage happens as follows:",
+      "instructionSyntax": "string_number-fret_number",
+      "examplesIntroduction": "Below are presented a few examples of basic instructions and their effects and outcomes in the tablature:",
+      "examplesTable": {
+        "description": "Examples of basic instructions and their effects and outcomes in the tablature",
+        "headers": {
+          "instruction": "Basic Instruction",
+          "description": "Effect",
+          "result": "Result on Tablature"
+        }
+      },
+      "childSections": {
+        "techniques": {
+          "name": "Techniques",
+          "introduction": "The basic instruction also allows the indication of specific techniques used to play certain notes, such as <tablatureTechniqueName>bend</tablatureTechniqueName>, <tablatureTechniqueName>slide</tablatureTechniqueName>, <tablatureTechniqueName>hammer-on</tablatureTechniqueName>, <tablatureTechniqueName>pull-off</tablatureTechniqueName>, among others. To do this, indicate the desired technique within the basic instruction, following the fret number. Thus, the use of the basic instruction with technique indication happens as follows:",
+          "instructionSyntax": "string_number-fret_number_with_technique",
+          "examplesIntroduction": "Below are some examples of basic instructions with technique indication and their outcomes in the tablature:",
+          "examplesTable": {
+            "headers": {
+              "technique": "Technique",
+              "instruction": "Basic Instruction",
+              "result": "Result on Tablature"
+            }
+          },
+          "relevantObservations": {
+            "useOfOtherTechniques": "The techniques listed above are not the only ones supported by Tablab. In fact, it will consider any notation added after the fret number within the basic instruction as a technique, and it will write it to the tablature immediately after the indicated fret.",
+            "motivationToUseOtherTechniques": "Feel free to use the techniques and the technique notations that best express your needs!"
+          }
+        }
+      }
+    },
+    "advancedInstructions": {
+      "name": "Advanced Instructions",
+      "introduction": "In addition to the basic instruction, Tablab provides additional instructions to assist in the tablature writing process. These instructions expand the Tablab's capabilities, allowing for:",
+      "extendedCapabilities": {
+        "newNotes": "Writing notes in tablatures that are not possible to write with the basic instruction only",
+        "writingMadeEasy": "More practical and convenient tablature writing process",
+        "formatAndCustomization": "Formatting and customizing the disposition of notes in the tablature",
+        "sections": "Marking headers and footer sections in the tablature"
+      },
+      "introductionForInstructionSynatx": {
+        "extended": "Extended notation:",
+        "short": "Short notation:"
+      },
+      "childSections": {
+        "merge": {
+          "name": "Merge",
+          "introduction": "The <mergeInstructionCode /> instruction allows writing multiple basic instructions at the same tablature time, that is, at the same vertical position. It is essential for composing chords and compound notes in the tablature. Its usage happens in any of the following ways:",
+          "instructionSyntaxWithoutInstructionIdentifier": "{ basic_instructions }",
+          "extendedInstructionSyntax": "merge $t(sections.advancedInstructions.childSections.merge.instructionSyntaxWithoutInstructionIdentifier)",
+          "shortInstructionSyntax": "m $t(sections.advancedInstructions.childSections.merge.instructionSyntaxWithoutInstructionIdentifier)",
+          "examplesIntroduction": "Below are some examples of <mergeInstructionCode /> instructions and their outcomes in the tablature:",
+          "examplesTable": {
+            "description": "Examples of advanced instructions of type merge and their outcomes in the tablature",
+            "headers": {
+              "instruction": "Merge Instruction",
+              "result": "Result on Tablature"
+            }
+          },
+          "relevantObservations": {
+            "orderOfInstructionsToMerge": "The order of the basic instructions within the <mergeInstructionCode /> instruction does not affect the result in the tablature. You may list the basic instructions in any order you want."
+          }
+        },
+        "repeat": {
+          "name": "Repeat",
+          "introduction": "The <repeatInstructionCode /> instruction allows writing instructions in the tablature repeatedly. It can write instructions of any type, including itself. It is helpful to write repetitive patterns in the tablature. Its usage happens in any of the following ways:",
+          "instructionSyntaxWithoutInstructionIdentifier": "( number_of_repetitions ) { instructions_to_repeat }",
+          "extendedInstructionSyntax": "repeat $t(sections.advancedInstructions.childSections.repeat.instructionSyntaxWithoutInstructionIdentifier)",
+          "shortInstructionSyntax": "r $t(sections.advancedInstructions.childSections.repeat.instructionSyntaxWithoutInstructionIdentifier)",
+          "examplesIntroduction": "Below are some examples of <repeatInstructionCode /> instructions and their outcomes in the tablature:",
+          "examplesTable": {
+            "description": "Examples of advanced instructions of type repeat and their outcomes in the tablature",
+            "headers": {
+              "instruction": "Repeat Instruction",
+              "result": "Result on Tablature"
+            }
+          }
+        },
+        "break": {
+          "name": "Break",
+          "introduction": "The <breakInstructionCode /> instruction denotes the end of the current block in the tablature. It instructs Tablab to write the instructions provided after it in a new tablature block. Its usage happens in any of the following ways:",
+          "extendedInstructionSyntax": "break",
+          "shortInstructionSyntax": "b"
+        },
+        "spacing": {
+          "name": "Spacing",
+          "introduction": "The <spacingInstructionCode /> instruction allows the control of the spacing between notes in the tablature. The spacing value defines the number of <spacingCharacterCode /> characters written between notes in the tablature. Its usage happens in any of the following ways:",
+          "instructionSyntaxWithoutInstructionIdentifier": "( number_of_spacing_characters )",
+          "extendedInstructionSyntax": "spacing $t(sections.advancedInstructions.childSections.spacing.instructionSyntaxWithoutInstructionIdentifier)",
+          "shortInstructionSyntax": "s $t(sections.advancedInstructions.childSections.spacing.instructionSyntaxWithoutInstructionIdentifier)",
+          "examplesIntroduction": "Below are some examples of instructions using the <spacingInstructionCode /> instruction and their outcomes in the tablature:",
+          "examplesTable": {
+            "description": "Examples of advanced instructions of type spacing and their outcomes in the tablature",
+            "headers": {
+              "instruction": "Instructions using the spacing instruction",
+              "result": "Result on Tablature"
+            }
+          }
+        },
+        "header": {
+          "name": "Header",
+          "introduction": "The <headerInstructionCode /> instruction marks the beginning of a section in the tablature. This mark is followed by a header message written above the current tablature block. Its usage happens in any of the following ways:",
+          "instructionSyntaxWithoutInstructionIdentifier": "( header_message )",
+          "extendedInstructionSyntax": "header $t(sections.advancedInstructions.childSections.header.instructionSyntaxWithoutInstructionIdentifier)",
+          "shortInstructionSyntax": "h $t(sections.advancedInstructions.childSections.header.instructionSyntaxWithoutInstructionIdentifier)",
+          "examplesIntroduction": "Below are some examples of instructions using the <headerInstructionCode /> instruction and their outcomes in the tablature:",
+          "examplesTable": {
+            "description": "Examples of advanced instructions of type header and their outcomes in the tablature",
+            "headers": {
+              "instruction": "Instructions using the header instruction",
+              "result": "Result on Tablature"
+            }
+          }
+        },
+        "footer": {
+          "name": "Footer",
+          "introduction": "The <footerInstructionCode /> instruction marks the end of a section in the tablature. This mark is preceded by a footer message written below the current tablature block. Its usage happens in any of the following ways:",
+          "instructionSyntaxWithoutInstructionIdentifier": "( footer_message )",
+          "extendedInstructionSyntax": "footer $t(sections.advancedInstructions.childSections.footer.instructionSyntaxWithoutInstructionIdentifier)",
+          "shortInstructionSyntax": "f $t(sections.advancedInstructions.childSections.footer.instructionSyntaxWithoutInstructionIdentifier)",
+          "examplesIntroduction": "Below are some examples of instructions using the <footerInstructionCode /> instruction and their outcomes in the tablature:",
+          "examplesTable": {
+            "description": "Examples of advanced instructions of type footer and their outcomes in the tablature",
+            "headers": {
+              "instruction": "Instructions using the footer instruction",
+              "result": "Result on Tablature"
+            }
+          }
+        }
+      }
+    },
+    "tablatureComposition": {
+      "name": "Composing the Tablature",
+      "introduction": "In order to compose a tablature in Tablab, first, it is necessary to identify the sequence of instructions required to write the notes of the desired tablature. Then, consolidate these instructions with spaces into a single instruction. Tablab will use this final instruction to generate your tablature.",
+      "actions": {
+        "goToEditor": {
+          "label": "Go to Editor"
+        }
+      }
+    }
+  },
+  "actions": {
+    "copyToClipboard": {
+      "snackbarMessage": "Copied to the clipboard."
+    }
+  }
 }

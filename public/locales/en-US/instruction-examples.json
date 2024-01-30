@@ -1,0 +1,15 @@
+{
+  "basicInstruction": {
+    "description": "String {{ string }} of the tablature, fret {{ fret }}"
+  },
+  "techniques": {
+    "languageTagForTechniqueName": "en",
+    "techniqueTypeToTechniqueName": {
+      "slideUp": "Slide Up",
+      "slideDown": "Slide Down",
+      "bend": "Bend",
+      "hammerOn": "Hammer-On",
+      "pullOff": "Pull-Off"
+    }
+  }
+}

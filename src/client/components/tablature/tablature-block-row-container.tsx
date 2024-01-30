@@ -18,15 +18,7 @@ const TablatureBlockRowContainer: FC<TablatureBlockRowContainerProps> = (props) 
 
   return (
     <TableRow>
-      <TableCell
-        component="td"
-        scope="row"
-        sx={{
-          borderBottom: borderBottom,
-        }}
-      >
-        {props.children}
-      </TableCell>
+      <TableCell sx={{ borderBottom: borderBottom }}>{props.children}</TableCell>
     </TableRow>
   );
 };

@@ -20,10 +20,10 @@ import Toolbar from '@mui/material/Toolbar';
 import Tooltip from '@mui/material/Tooltip';
 import useScrollTrigger from '@mui/material/useScrollTrigger';
 import { useTranslation } from 'next-i18next';
-import { FC, useState } from 'react';
+import { FC, ReactElement, memo, useState } from 'react';
 
 export interface HideBottomAppBarOnScrollProps {
-  children: React.ReactElement;
+  children: ReactElement;
 }
 
 const HideBottomAppBarOnScroll: FC<HideBottomAppBarOnScrollProps> = ({ children }) => {
@@ -170,4 +170,4 @@ const BottomAppBar: FC<BottomAppBarProps> = ({ currentPath, currentLocale }) => 
   );
 };
 
-export default BottomAppBar;
+export default memo(BottomAppBar);

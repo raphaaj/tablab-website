@@ -3,6 +3,11 @@
  * * https://mui.com/pt/material-ui/getting-started/example-projects/
  * * https://github.com/mui/material-ui/blob/master/examples/nextjs-with-typescript/pages/_app.tsx
  */
+import {
+  SnackbarReducerContext,
+  SnackbarReducerContextProvider,
+} from '@client/contexts/snackbar-reducer.context';
+import { createInitialSnackbarState, snackbarReducer } from '@client/reducers/snackbar.reducer';
 import createTheme from '@client/styles/theme/create-theme';
 import createEmotionCache from '@client/utils/create-emotion-cache';
 import { CacheProvider, EmotionCache } from '@emotion/react';
@@ -12,6 +17,7 @@ import { appWithTranslation } from 'next-i18next';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { useReducer } from 'react';
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -24,6 +30,17 @@ function MyApp({ Component, emotionCache = clientSideEmotionCache, pageProps }: 
 
   const theme = createTheme(router.locale);
 
+  const [snackbarState, dispatchSnackbarAction] = useReducer(
+    snackbarReducer,
+    null,
+    createInitialSnackbarState
+  );
+
+  const snackbarReducerContext: SnackbarReducerContext = {
+    snackbarState,
+    dispatchSnackbarAction,
+  };
+
   return (
     <CacheProvider value={emotionCache}>
       <Head>
@@ -31,7 +48,9 @@ function MyApp({ Component, emotionCache = clientSideEmotionCache, pageProps }: 
       </Head>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Component {...pageProps} />
+        <SnackbarReducerContextProvider value={snackbarReducerContext}>
+          <Component {...pageProps} />
+        </SnackbarReducerContextProvider>
       </ThemeProvider>
     </CacheProvider>
   );
