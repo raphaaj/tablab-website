@@ -224,7 +224,7 @@ const About: FC<AboutProps> = ({
             t={t}
           ></AboutTOC>
         </Grid>
-        <Grid mt={1} item xs={12} md={8} xl={9}>
+        <Grid item xs={12} md={8} xl={9}>
           <section>
             <HeaderSection
               headerSection={introductionHeaderSection}
