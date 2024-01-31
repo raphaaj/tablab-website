@@ -10,7 +10,8 @@ export function useScrollSpy<TElement extends HTMLElement>(elementsToSpy: (TElem
   const [activeElement, setActiveElement] = useState<TElement | null>(null);
 
   const syncActiveElement = useCallback(() => {
-    let activeElementCandidateBoundingClientRectData: SpiedElementBoundingClientRectData<TElement> | null =
+    let activeElementCandidateData: SpiedElementBoundingClientRectData<TElement> | null = null;
+    let closestElementToEndOfPageCandidateData: SpiedElementBoundingClientRectData<TElement> | null =
       null;
 
     for (const spiedElement of elementsToSpy) {
@@ -21,16 +22,35 @@ export function useScrollSpy<TElement extends HTMLElement>(elementsToSpy: (TElem
         };
 
         if (
-          !activeElementCandidateBoundingClientRectData ||
+          !activeElementCandidateData ||
           Math.abs(spiedElementBoundingClientRectData.boundingClientRect.top) <
-            Math.abs(activeElementCandidateBoundingClientRectData.boundingClientRect.top)
+            Math.abs(activeElementCandidateData.boundingClientRect.top)
         ) {
-          activeElementCandidateBoundingClientRectData = spiedElementBoundingClientRectData;
+          activeElementCandidateData = spiedElementBoundingClientRectData;
+        }
+
+        if (
+          !closestElementToEndOfPageCandidateData ||
+          spiedElementBoundingClientRectData.boundingClientRect.top >
+            closestElementToEndOfPageCandidateData.boundingClientRect.top
+        ) {
+          closestElementToEndOfPageCandidateData = spiedElementBoundingClientRectData;
         }
       }
     }
 
-    setActiveElement(activeElementCandidateBoundingClientRectData?.element ?? null);
+    const isPageScrollable =
+      document.documentElement.scrollHeight > document.documentElement.clientHeight;
+    const isAtEndOfPage =
+      isPageScrollable &&
+      window.scrollY + document.documentElement.clientHeight >=
+        document.documentElement.scrollHeight;
+
+    if (isAtEndOfPage) {
+      activeElementCandidateData = closestElementToEndOfPageCandidateData;
+    }
+
+    setActiveElement(activeElementCandidateData?.element ?? null);
   }, [elementsToSpy]);
 
   useLayoutEffect(syncActiveElement, [syncActiveElement]);
