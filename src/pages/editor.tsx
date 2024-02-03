@@ -3,6 +3,7 @@ import { InvalidInstruction } from '@client/components/pages/editor/invalid-inst
 import InvalidInstructionsFeedback from '@client/components/pages/editor/invalid-instructions-feedback';
 import Tablature from '@client/components/tablature/tablature';
 import TablatureSkeleton from '@client/components/tablature/tablature-skeleton';
+import NextLinkComposed from '@client/components/ui/next-link-composed';
 import TextFieldFontMonospace from '@client/components/ui/text-field-font-monospace';
 import { useHtmlElementSize } from '@client/hooks/use-html-element-size';
 import { TablatureCreationError } from '@client/models/tablature/tablature-creation-error';
@@ -18,12 +19,14 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
+import MuiLink from '@mui/material/Link';
 import MenuItem from '@mui/material/MenuItem';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import { GetStaticProps } from 'next';
-import { useTranslation } from 'next-i18next';
+import { Trans, useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import React, { useRef, useState } from 'react';
@@ -200,8 +203,27 @@ export default function Editor() {
 
   return (
     <BaseLayout>
-      <Grid container rowSpacing={3}>
-        <Grid item xs={12}>
+      <Grid container rowSpacing={3} justifyContent="center">
+        <Grid item xs={12} xl={10}>
+          <Typography mb={1}>{t('introduction.command')}</Typography>
+
+          <Typography mb={2}>
+            <Trans
+              t={t}
+              i18nKey="introduction.instructions-guide"
+              components={{
+                instructionGuideLink: (
+                  <MuiLink
+                    component={NextLinkComposed}
+                    to="about"
+                    target="_blank"
+                    rel="noopener"
+                  ></MuiLink>
+                ),
+              }}
+            />
+          </Typography>
+
           <form onSubmit={handleTabCreation} noValidate>
             <TextFieldFontMonospace
               id="instructions-input"

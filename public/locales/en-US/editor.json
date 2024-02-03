@@ -1,4 +1,8 @@
 {
+  "introduction": {
+    "command": "Please provide below the sequence of instructions for generating the desired tablature.",
+    "instructions-guide": "If necessary, refer to our <instructionGuideLink>guide</instructionGuideLink> to review the available instructions, how to use them, and usage examples."
+  },
   "instructions-form": {
     "fields": {
       "instructions-input": {
