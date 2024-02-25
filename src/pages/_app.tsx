@@ -8,6 +8,7 @@ import {
   SnackbarReducerContextProvider,
 } from '@client/contexts/snackbar-reducer.context';
 import { createInitialSnackbarState, snackbarReducer } from '@client/reducers/snackbar.reducer';
+import '@client/styles/global.css';
 import createTheme from '@client/styles/theme/create-theme';
 import createEmotionCache from '@common/utils/create-emotion-cache';
 import { CacheProvider, EmotionCache } from '@emotion/react';

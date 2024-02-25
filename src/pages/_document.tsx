@@ -30,18 +30,6 @@ export default function MyDocument(props: DocumentProps & DocumentHeadTagsProps)
         <link rel="shortcut icon" href="/favicon.ico" />
         <DocumentHeadTags {...props} />
 
-        <link
-          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap"
-          rel="stylesheet"
-        />
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap"
-          rel="stylesheet"
-        ></link>
         <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
       </Head>
       <body>
