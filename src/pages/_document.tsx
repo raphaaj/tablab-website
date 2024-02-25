@@ -46,18 +46,6 @@ export default class MyDocument extends Document {
       <Html>
         <Head>
           <meta name="theme-color" content={theme.palette.primary.main} />
-          <link
-            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap"
-            rel="stylesheet"
-          />
-          <link
-            rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap"
-          />
-          <link
-            href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap"
-            rel="stylesheet"
-          ></link>
           <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
           {(this.props as any).emotionStyleTags}
         </Head>
