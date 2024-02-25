@@ -1,21 +1,34 @@
 /**
  * Guide to use nextjs NextLink component with MUI 5:
  * * https://mui.com/guides/routing/#next-js
- * * https://github.com/mui/material-ui/blob/master/examples/nextjs-with-typescript/src/Link.tsx
+ * * https://github.com/mui/material-ui/blob/master/examples/material-ui-nextjs-pages-router-ts/src/Link.tsx
  */
+import { styled } from '@mui/material/styles';
 import NextLink, { LinkProps as NextLinkProps } from 'next/link';
 import { forwardRef, memo } from 'react';
 
+const Anchor = styled('a')({});
+
 interface NextLinkComposedProps
   extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'>,
-    Omit<NextLinkProps, 'href' | 'as' | 'onClick' | 'onMouseEnter' | 'onTouchStart'> {
+    Omit<NextLinkProps, 'href' | 'as' | 'passHref' | 'onMouseEnter' | 'onClick' | 'onTouchStart'> {
   linkAs?: NextLinkProps['as'];
   to: NextLinkProps['href'];
 }
 
 export const NextLinkComposed = forwardRef<HTMLAnchorElement, NextLinkComposedProps>(
   function NextLinkComposed(props, ref) {
-    const { to, linkAs, replace, scroll, shallow, prefetch, locale, ...other } = props;
+    const {
+      to,
+      linkAs,
+      replace,
+      scroll,
+      shallow,
+      prefetch,
+      legacyBehavior = true,
+      locale,
+      ...other
+    } = props;
 
     return (
       <NextLink
@@ -27,8 +40,9 @@ export const NextLinkComposed = forwardRef<HTMLAnchorElement, NextLinkComposedPr
         shallow={shallow}
         passHref
         locale={locale}
+        legacyBehavior={legacyBehavior}
       >
-        <a ref={ref} {...other}></a>
+        <Anchor ref={ref} {...other} />
       </NextLink>
     );
   }

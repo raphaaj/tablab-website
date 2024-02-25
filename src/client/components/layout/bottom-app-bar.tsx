@@ -67,7 +67,7 @@ const BottomAppBar: FC<BottomAppBarProps> = ({ currentPath, currentLocale }) => 
     <HideBottomAppBarOnScroll>
       <AppBar position="fixed" color="primary" sx={{ top: 'auto', bottom: 0 }}>
         <Toolbar sx={{ justifyContent: 'space-around' }}>
-          <Tooltip title={t<string>('navigation.homeLink.shortLabel')} arrow>
+          <Tooltip title={t('navigation.homeLink.shortLabel')} arrow>
             <IconButton
               sx={{ opacity: currentPath === '/' ? HIGHLIGHT_OPACITY : LOWLIGHT_OPACITY }}
               color="inherit"
@@ -79,7 +79,7 @@ const BottomAppBar: FC<BottomAppBarProps> = ({ currentPath, currentLocale }) => 
             </IconButton>
           </Tooltip>
 
-          <Tooltip title={t<string>('navigation.editorLink.shortLabel')} arrow>
+          <Tooltip title={t('navigation.editorLink.shortLabel')} arrow>
             <IconButton
               sx={{ opacity: currentPath === '/editor' ? HIGHLIGHT_OPACITY : LOWLIGHT_OPACITY }}
               color="inherit"
@@ -91,7 +91,7 @@ const BottomAppBar: FC<BottomAppBarProps> = ({ currentPath, currentLocale }) => 
             </IconButton>
           </Tooltip>
 
-          <Tooltip title={t<string>('navigation.aboutLink.shortLabel')} arrow>
+          <Tooltip title={t('navigation.aboutLink.shortLabel')} arrow>
             <IconButton
               sx={{ opacity: currentPath === '/about' ? HIGHLIGHT_OPACITY : LOWLIGHT_OPACITY }}
               color="inherit"
@@ -103,7 +103,7 @@ const BottomAppBar: FC<BottomAppBarProps> = ({ currentPath, currentLocale }) => 
             </IconButton>
           </Tooltip>
 
-          <Tooltip title={t<string>('options.shortLabel')} arrow>
+          <Tooltip title={t('options.shortLabel')} arrow>
             <IconButton
               color="inherit"
               aria-label={t('options.descriptiveLabel')}

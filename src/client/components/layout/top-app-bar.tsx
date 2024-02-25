@@ -92,7 +92,7 @@ const TopAppBar: FC<TopAppBarProps> = ({ showMenu = false, currentPath, currentL
                 {t('navigation.aboutLink.shortLabel')}
               </Button>
 
-              <Tooltip title={t<string>('navigation.gitHubRepositoryLink.descriptiveLabel')} arrow>
+              <Tooltip title={t('navigation.gitHubRepositoryLink.descriptiveLabel')} arrow>
                 <IconButton
                   sx={{ marginLeft: '1rem' }}
                   color="inherit"
@@ -108,7 +108,7 @@ const TopAppBar: FC<TopAppBarProps> = ({ showMenu = false, currentPath, currentL
             </Box>
 
             <Box>
-              <Tooltip title={t<string>('options.language.descriptiveLabel')} arrow>
+              <Tooltip title={t('options.language.descriptiveLabel')} arrow>
                 <IconButton
                   color="inherit"
                   aria-label={t('options.language.descriptiveLabel')}

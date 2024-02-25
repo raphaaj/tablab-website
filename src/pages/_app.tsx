@@ -1,7 +1,7 @@
 /**
  * Guide for integration of MUI 5 with a nextjs app:
  * * https://mui.com/pt/material-ui/getting-started/example-projects/
- * * https://github.com/mui/material-ui/blob/master/examples/nextjs-with-typescript/pages/_app.tsx
+ * * https://github.com/mui/material-ui/blob/master/examples/material-ui-nextjs-pages-router-ts/pages/_app.tsx
  */
 import {
   SnackbarReducerContext,
@@ -9,7 +9,7 @@ import {
 } from '@client/contexts/snackbar-reducer.context';
 import { createInitialSnackbarState, snackbarReducer } from '@client/reducers/snackbar.reducer';
 import createTheme from '@client/styles/theme/create-theme';
-import createEmotionCache from '@client/utils/create-emotion-cache';
+import createEmotionCache from '@common/utils/create-emotion-cache';
 import { CacheProvider, EmotionCache } from '@emotion/react';
 import CssBaseline from '@mui/material/CssBaseline';
 import { ThemeProvider } from '@mui/material/styles';
@@ -17,18 +17,14 @@ import { appWithTranslation } from 'next-i18next';
 import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
-import { useReducer } from 'react';
+import { useMemo, useReducer } from 'react';
 
-const clientSideEmotionCache = createEmotionCache();
+function MyApp(props: AppProps) {
+  const { Component, pageProps } = props;
 
-interface MyAppProps extends AppProps {
-  emotionCache?: EmotionCache;
-}
-
-function MyApp({ Component, emotionCache = clientSideEmotionCache, pageProps }: MyAppProps) {
   const router = useRouter();
 
-  const theme = createTheme(router.locale);
+  const theme = useMemo(() => createTheme(router.locale), [router.locale]);
 
   const [snackbarState, dispatchSnackbarAction] = useReducer(
     snackbarReducer,
@@ -42,7 +38,7 @@ function MyApp({ Component, emotionCache = clientSideEmotionCache, pageProps }: 
   };
 
   return (
-    <CacheProvider value={emotionCache}>
+    <AppCacheProvider {...props}>
       <Head>
         <meta name="viewport" content="initial-scale=1, width=device-width" />
       </Head>
@@ -52,8 +48,25 @@ function MyApp({ Component, emotionCache = clientSideEmotionCache, pageProps }: 
           <Component {...pageProps} />
         </SnackbarReducerContextProvider>
       </ThemeProvider>
-    </CacheProvider>
+    </AppCacheProvider>
   );
 }
 
 export default appWithTranslation(MyApp);
+
+/**
+ * Structures required for integration of MUI 5
+ */
+
+interface EmotionCacheProviderProps {
+  emotionCache?: EmotionCache;
+}
+
+const defaultEmotionCache = createEmotionCache();
+
+function AppCacheProvider({
+  emotionCache = defaultEmotionCache,
+  children,
+}: React.PropsWithChildren<EmotionCacheProviderProps>) {
+  return <CacheProvider value={emotionCache}>{children}</CacheProvider>;
+}

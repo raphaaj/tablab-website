@@ -22,6 +22,7 @@ export function createRouterMock(router: Partial<NextRouter> = {}): NextRouter {
     isReady: true,
     isPreview: false,
     back: jest.fn(() => Promise.resolve(true)),
+    forward: jest.fn(),
     beforePopState: jest.fn(() => Promise.resolve(true)),
     prefetch: jest.fn(() => Promise.resolve()),
     push: jest.fn(() => Promise.resolve(true)),
