@@ -1,8 +1,8 @@
 import BaseLayout from '@client/components/layout/base-layout';
 import { BottomAppBarProps } from '@client/components/layout/bottom-app-bar';
 import { TopAppBarProps } from '@client/components/layout/top-app-bar';
-import { createRouterMock } from '@test-utils/create-router-mock';
 import { render, screen, within } from '@testing-library/react';
+import { createRouterMock } from '@tests/.utils/create-router-mock';
 import { RouterContext } from 'next/dist/shared/lib/router-context.shared-runtime';
 
 // https://react.i18next.com/misc/testing

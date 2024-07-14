@@ -2,9 +2,9 @@ import BottomAppBar, {
   HIGHLIGHT_OPACITY,
   LOWLIGHT_OPACITY,
 } from '@client/components/layout/bottom-app-bar';
+import nextI18nextConfig from '@next-i18next.config';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import nextI18nextConfig from 'next-i18next.config';
 
 // https://react.i18next.com/misc/testing
 jest.mock('react-i18next', () => ({

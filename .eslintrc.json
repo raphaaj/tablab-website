@@ -45,16 +45,13 @@
             "protected-instance-method",
             "protected-abstract-method",
             "private-instance-method"
-          ],
-          "order": "alphabetically"
+          ]
         },
         "interfaces": {
-          "memberTypes": ["signature", "field", "constructor", "method"],
-          "order": "alphabetically"
+          "memberTypes": ["signature", "field", "constructor", "method"]
         },
         "typeLiterals": {
-          "memberTypes": ["signature", "field", "constructor", "method"],
-          "order": "alphabetically"
+          "memberTypes": ["signature", "field", "constructor", "method"]
         }
       }
     ]

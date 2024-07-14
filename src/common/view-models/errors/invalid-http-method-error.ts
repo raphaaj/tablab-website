@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/member-ordering */
 import { BaseError } from '@common/view-models/errors/base-error';
 
 export interface InvalidHttpMethodErrorDetails {

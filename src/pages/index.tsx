@@ -6,8 +6,12 @@ import Divider from '@mui/material/Divider';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { TablatureCreationDataDTO } from '@server/services/tablature/dtos/tablature-creation-data-dto';
-import { TablatureService } from '@server/services/tablature/tablature-service';
+import { TablatureCompilationOptionsDTO } from '@server/services/tablature-compiler-service/dtos/tablature-compilation-options.dto';
+import {
+  ITablatureCompilerService,
+  ITablatureCompilerServiceInjectionToken,
+} from '@server/services/tablature-compiler-service/interfaces/tablature-compiler-service.interface';
+
 import type { GetStaticProps, NextPage } from 'next';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
@@ -152,21 +156,28 @@ const Home: NextPage<HomeProps> = ({ riffsRenderedTabs }) => {
 export default Home;
 
 export const getStaticProps: GetStaticProps = async (context) => {
+  const { container } = await import('@server/container');
+
+  const tablatureCompilerService = container.resolve<ITablatureCompilerService>(
+    ITablatureCompilerServiceInjectionToken
+  );
+
   const riffsRenderedTabs: string[][][] = [];
 
-  const tablatureService = new TablatureService();
   for (const riffTabRenderizationInstructions of RIFFS_TAB_RENDERIZATION_INSTRUCTIONS) {
-    const riffTabCreationResult = await tablatureService.createTablature(
-      new TablatureCreationDataDTO({
-        initialSpacing: RIFFS_TAB_RENDERIZATION_INITIAL_SPACING,
-        instructions: riffTabRenderizationInstructions,
-        numberOfStrings: RIFFS_TAB_RENDERIZATION_NUMBER_OF_STRINGS,
-        rowsLength: RIFFS_TAB_RENDERIZATION_ROWS_LENGTH,
-      })
+    const tablatureCompilationOptions = new TablatureCompilationOptionsDTO({
+      numberOfStrings: RIFFS_TAB_RENDERIZATION_NUMBER_OF_STRINGS,
+      initialSpacing: RIFFS_TAB_RENDERIZATION_INITIAL_SPACING,
+      rowsLength: RIFFS_TAB_RENDERIZATION_ROWS_LENGTH,
+    });
+
+    const riffTabCreationResult = await tablatureCompilerService.compileTablaure(
+      riffTabRenderizationInstructions,
+      tablatureCompilationOptions
     );
 
-    if (tablatureService.isSuccessfulTablatureCreationResult(riffTabCreationResult)) {
-      riffsRenderedTabs.push(riffTabCreationResult.tablature.renderedTab);
+    if (tablatureCompilerService.isSuccessfulTablatureCompilationResult(riffTabCreationResult)) {
+      riffsRenderedTabs.push(riffTabCreationResult.compiledTablature.tablature);
     }
   }
 

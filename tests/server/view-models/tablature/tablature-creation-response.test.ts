@@ -1,4 +1,3 @@
-import { TablatureDTO } from '@server/services/tablature/dtos/tablature-dto';
 import { TablatureCreationResponse } from '@server/view-models/tablature/tablature-creation-response';
 
 describe(TablatureCreationResponse.name, () => {
@@ -19,7 +18,7 @@ describe(TablatureCreationResponse.name, () => {
         initialSpacing,
         rowsLength,
         instructions,
-        renderedTab,
+        tablature: renderedTab,
       });
 
       expect(tablatureCreationResponse.title).toBe(title);
@@ -28,7 +27,7 @@ describe(TablatureCreationResponse.name, () => {
       expect(tablatureCreationResponse.initialSpacing).toBe(initialSpacing);
       expect(tablatureCreationResponse.rowsLength).toBe(rowsLength);
       expect(tablatureCreationResponse.instructions).toBe(instructions);
-      expect(tablatureCreationResponse.renderedTab).toBe(renderedTab);
+      expect(tablatureCreationResponse.tablature).toBe(renderedTab);
     });
 
     it('should create an instance when the field title is given with all the required fields', () => {
@@ -47,7 +46,7 @@ describe(TablatureCreationResponse.name, () => {
         initialSpacing,
         rowsLength,
         instructions,
-        renderedTab,
+        tablature: renderedTab,
       });
 
       expect(tablatureCreationResponse.title).toBe(title);
@@ -56,7 +55,7 @@ describe(TablatureCreationResponse.name, () => {
       expect(tablatureCreationResponse.initialSpacing).toBe(initialSpacing);
       expect(tablatureCreationResponse.rowsLength).toBe(rowsLength);
       expect(tablatureCreationResponse.instructions).toBe(instructions);
-      expect(tablatureCreationResponse.renderedTab).toBe(renderedTab);
+      expect(tablatureCreationResponse.tablature).toBe(renderedTab);
     });
 
     it('should create an instance when the field observations is given with all the required fields', () => {
@@ -75,7 +74,7 @@ describe(TablatureCreationResponse.name, () => {
         initialSpacing,
         rowsLength,
         instructions,
-        renderedTab,
+        tablature: renderedTab,
       });
 
       expect(tablatureCreationResponse.title).toBe(title);
@@ -84,29 +83,7 @@ describe(TablatureCreationResponse.name, () => {
       expect(tablatureCreationResponse.initialSpacing).toBe(initialSpacing);
       expect(tablatureCreationResponse.rowsLength).toBe(rowsLength);
       expect(tablatureCreationResponse.instructions).toBe(instructions);
-      expect(tablatureCreationResponse.renderedTab).toBe(renderedTab);
-    });
-  });
-
-  describe(TablatureCreationResponse.createFromTablature.name, () => {
-    it(`should create an instance from a ${TablatureDTO.name}`, () => {
-      const tablature = new TablatureDTO({
-        initialSpacing: 1,
-        instructions: '1-0',
-        numberOfStrings: 6,
-        renderedTab: [[]],
-        rowsLength: 15,
-      });
-
-      const tablatureCreationResponse = TablatureCreationResponse.createFromTablature(tablature);
-
-      expect(tablatureCreationResponse.title).toBe(tablature.title);
-      expect(tablatureCreationResponse.observations).toBe(tablature.observations);
-      expect(tablatureCreationResponse.numberOfStrings).toBe(tablature.numberOfStrings);
-      expect(tablatureCreationResponse.initialSpacing).toBe(tablature.initialSpacing);
-      expect(tablatureCreationResponse.rowsLength).toBe(tablature.rowsLength);
-      expect(tablatureCreationResponse.instructions).toBe(tablature.instructions);
-      expect(tablatureCreationResponse.renderedTab).toBe(tablature.renderedTab);
+      expect(tablatureCreationResponse.tablature).toBe(renderedTab);
     });
   });
 });

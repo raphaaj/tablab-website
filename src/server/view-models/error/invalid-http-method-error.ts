@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/member-ordering */
-
 import { ErrorCode } from '@common/enums/error-code';
 import {
   InvalidHttpMethodError as CommonInvalidHttpMethodError,

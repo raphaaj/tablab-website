@@ -25,18 +25,24 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Typography from '@mui/material/Typography';
-import { InstructionExamplesSetupDTO } from '@server/services/instruction-examples-setup-provider-service/dtos/instruction-examples-setup-dto';
-import { InstructionExamplesSetupProviderService } from '@server/services/instruction-examples-setup-provider-service/instruction-examples-setup-provider-service';
-import { TablatureCreationDataDTO } from '@server/services/tablature/dtos/tablature-creation-data-dto';
-import { TablatureService } from '@server/services/tablature/tablature-service';
+import { InstructionExamplesSetupDTO } from '@server/services/instructions-examples-setup-provider-service/dtos/instruction-examples-setup-dto';
+import {
+  IInstructionsExamplesSetupProviderService,
+  IInstructionsExamplesSetupProviderServiceInjectionToken,
+} from '@server/services/instructions-examples-setup-provider-service/interfaces/instructions-examples-setup-provider-service.interface';
+import { TablatureCompilationOptionsDTO } from '@server/services/tablature-compiler-service/dtos/tablature-compilation-options.dto';
+import {
+  ITablatureCompilerService,
+  ITablatureCompilerServiceInjectionToken,
+} from '@server/services/tablature-compiler-service/interfaces/tablature-compiler-service.interface';
 import { GetStaticProps } from 'next';
 import { Trans, useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { FC, useCallback, useState } from 'react';
 
-interface RenderedInstructionExample<TInstructionExample extends InstructionExample> {
+interface InstructionExampleCompiledTablature<TInstructionExample extends InstructionExample> {
   instructionExample: TInstructionExample;
-  renderedTab: string[][];
+  tablature: string[][];
 }
 
 const ChipCodeHoverButtonContentCopyIcon = <ContentCopyIcon fontSize="inherit" />;
@@ -51,13 +57,13 @@ const TablatureTechniqueName: FC<{
 );
 
 export interface AboutProps {
-  renderedInstructionExamplesForBasicInstruction: RenderedInstructionExample<InstructionExampleWithDescription>[];
-  renderedInstructionExamplesForBasicInstructionWithTechnique: RenderedInstructionExample<InstructionExampleWithDescription>[];
-  renderedInstructionExamplesForFooterInstruction: RenderedInstructionExample<InstructionExample>[];
-  renderedInstructionExamplesForHeaderInstruction: RenderedInstructionExample<InstructionExample>[];
-  renderedInstructionExamplesForMergeInstruction: RenderedInstructionExample<InstructionExample>[];
-  renderedInstructionExamplesForRepeatInstruction: RenderedInstructionExample<InstructionExample>[];
-  renderedInstructionExamplesForSpacingInstruction: RenderedInstructionExample<InstructionExample>[];
+  renderedInstructionExamplesForBasicInstruction: InstructionExampleCompiledTablature<InstructionExampleWithDescription>[];
+  renderedInstructionExamplesForBasicInstructionWithTechnique: InstructionExampleCompiledTablature<InstructionExampleWithDescription>[];
+  renderedInstructionExamplesForFooterInstruction: InstructionExampleCompiledTablature<InstructionExample>[];
+  renderedInstructionExamplesForHeaderInstruction: InstructionExampleCompiledTablature<InstructionExample>[];
+  renderedInstructionExamplesForMergeInstruction: InstructionExampleCompiledTablature<InstructionExample>[];
+  renderedInstructionExamplesForRepeatInstruction: InstructionExampleCompiledTablature<InstructionExample>[];
+  renderedInstructionExamplesForSpacingInstruction: InstructionExampleCompiledTablature<InstructionExample>[];
 }
 
 const About: FC<AboutProps> = ({
@@ -308,7 +314,7 @@ const About: FC<AboutProps> = ({
                             discardFooter={true}
                             fullWidth={false}
                             label=""
-                            block={renderedInstructionExampleForBasicInstruction.renderedTab[0]}
+                            block={renderedInstructionExampleForBasicInstruction.tablature[0]}
                           />
                         </TableCell>
                       </TableRow>
@@ -418,7 +424,7 @@ const About: FC<AboutProps> = ({
                             label=""
                             block={
                               renderedInstructionExampleForBasicInstructionWithTechnique
-                                .renderedTab[0]
+                                .tablature[0]
                             }
                           />
                         </TableCell>
@@ -567,7 +573,7 @@ const About: FC<AboutProps> = ({
                             discardFooter={true}
                             fullWidth={false}
                             label=""
-                            block={renderedInstructionExampleForMergeInstruction.renderedTab[0]}
+                            block={renderedInstructionExampleForMergeInstruction.tablature[0]}
                           />
                         </TableCell>
                       </TableRow>
@@ -691,7 +697,7 @@ const About: FC<AboutProps> = ({
                             discardFooter={true}
                             fullWidth={false}
                             label=""
-                            block={renderedInstructionExampleForRepeatInstruction.renderedTab[0]}
+                            block={renderedInstructionExampleForRepeatInstruction.tablature[0]}
                           />
                         </TableCell>
                       </TableRow>
@@ -839,7 +845,7 @@ const About: FC<AboutProps> = ({
                             discardFooter={true}
                             fullWidth={false}
                             label=""
-                            block={renderedInstructionExampleForSpacingInstruction.renderedTab[0]}
+                            block={renderedInstructionExampleForSpacingInstruction.tablature[0]}
                           />
                         </TableCell>
                       </TableRow>
@@ -951,7 +957,7 @@ const About: FC<AboutProps> = ({
                             discardFooter={true}
                             fullWidth={false}
                             label=""
-                            block={renderedInstructionExampleForHeaderInstruction.renderedTab[0]}
+                            block={renderedInstructionExampleForHeaderInstruction.tablature[0]}
                           />
                         </TableCell>
                       </TableRow>
@@ -1063,7 +1069,7 @@ const About: FC<AboutProps> = ({
                             discardFooter={false}
                             fullWidth={false}
                             label=""
-                            block={renderedInstructionExampleForFooterInstruction.renderedTab[0]}
+                            block={renderedInstructionExampleForFooterInstruction.tablature[0]}
                           />
                         </TableCell>
                       </TableRow>
@@ -1106,45 +1112,68 @@ const About: FC<AboutProps> = ({
 export default About;
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const instructionExamplesSetupProviderService = new InstructionExamplesSetupProviderService(
-    context.locale
-  );
+  const { container } = await import('@server/container');
+
+  const instructionsExamplesSetupProviderService =
+    container.resolve<IInstructionsExamplesSetupProviderService>(
+      IInstructionsExamplesSetupProviderServiceInjectionToken
+    );
+  if (context.locale) instructionsExamplesSetupProviderService.useLocale(context.locale);
 
   const basicInstructionExamplesSetup =
-    await instructionExamplesSetupProviderService.getBasicInstructionExamplesSetup();
+    await instructionsExamplesSetupProviderService.getBasicInstructionExamplesSetup();
   const basicInstructionWithTechniqueExamplesSetup =
-    await instructionExamplesSetupProviderService.getBasicInstructionWithTechniqueExamplesSetup();
+    await instructionsExamplesSetupProviderService.getBasicInstructionWithTechniqueExamplesSetup();
   const footerInstructionExamplesSetup =
-    await instructionExamplesSetupProviderService.getFooterInstructionExamplesSetup();
+    await instructionsExamplesSetupProviderService.getFooterInstructionExamplesSetup();
   const headerInstructionExamplesSetup =
-    await instructionExamplesSetupProviderService.getHeaderInstructionExamplesSetup();
+    await instructionsExamplesSetupProviderService.getHeaderInstructionExamplesSetup();
   const mergeInstructionExamplesSetup =
-    await instructionExamplesSetupProviderService.getMergeInstructionExamplesSetup();
+    await instructionsExamplesSetupProviderService.getMergeInstructionExamplesSetup();
   const repeatInstructionExamplesSetup =
-    await instructionExamplesSetupProviderService.getRepeatInstructionExamplesSetup();
+    await instructionsExamplesSetupProviderService.getRepeatInstructionExamplesSetup();
   const spacingInstructionExamplesSetup =
-    await instructionExamplesSetupProviderService.getSpacingInstructionExamplesSetup();
+    await instructionsExamplesSetupProviderService.getSpacingInstructionExamplesSetup();
 
-  const renderedInstructionExamplesForBasicInstruction = await renderInstructionExamplesFromSetup(
-    basicInstructionExamplesSetup
+  const tablatureCompilerService = container.resolve<ITablatureCompilerService>(
+    ITablatureCompilerServiceInjectionToken
   );
+
+  const renderedInstructionExamplesForBasicInstruction =
+    await compileInstructionExamplesSetupToTablatures(
+      tablatureCompilerService,
+      basicInstructionExamplesSetup
+    );
   const renderedInstructionExamplesForBasicInstructionWithTechnique =
-    await renderInstructionExamplesFromSetup(basicInstructionWithTechniqueExamplesSetup);
-  const renderedInstructionExamplesForFooterInstruction = await renderInstructionExamplesFromSetup(
-    footerInstructionExamplesSetup
-  );
-  const renderedInstructionExamplesForHeaderInstruction = await renderInstructionExamplesFromSetup(
-    headerInstructionExamplesSetup
-  );
-  const renderedInstructionExamplesForMergeInstruction = await renderInstructionExamplesFromSetup(
-    mergeInstructionExamplesSetup
-  );
-  const renderedInstructionExamplesForRepeatInstruction = await renderInstructionExamplesFromSetup(
-    repeatInstructionExamplesSetup
-  );
-  const renderedInstructionExamplesForSpacingInstruction = await renderInstructionExamplesFromSetup(
-    spacingInstructionExamplesSetup
-  );
+    await compileInstructionExamplesSetupToTablatures(
+      tablatureCompilerService,
+      basicInstructionWithTechniqueExamplesSetup
+    );
+  const renderedInstructionExamplesForFooterInstruction =
+    await compileInstructionExamplesSetupToTablatures(
+      tablatureCompilerService,
+      footerInstructionExamplesSetup
+    );
+  const renderedInstructionExamplesForHeaderInstruction =
+    await compileInstructionExamplesSetupToTablatures(
+      tablatureCompilerService,
+      headerInstructionExamplesSetup
+    );
+  const renderedInstructionExamplesForMergeInstruction =
+    await compileInstructionExamplesSetupToTablatures(
+      tablatureCompilerService,
+      mergeInstructionExamplesSetup
+    );
+  const renderedInstructionExamplesForRepeatInstruction =
+    await compileInstructionExamplesSetupToTablatures(
+      tablatureCompilerService,
+      repeatInstructionExamplesSetup
+    );
+  const renderedInstructionExamplesForSpacingInstruction =
+    await compileInstructionExamplesSetupToTablatures(
+      tablatureCompilerService,
+      spacingInstructionExamplesSetup
+    );
 
   const aboutComponentProps: AboutProps = {
     renderedInstructionExamplesForBasicInstruction,
@@ -1169,33 +1198,39 @@ export const getStaticProps: GetStaticProps = async (context) => {
   };
 };
 
-async function renderInstructionExamplesFromSetup<TInstructionExample extends InstructionExample>(
+async function compileInstructionExamplesSetupToTablatures<
+  TInstructionExample extends InstructionExample,
+>(
+  tablatureCompilerService: ITablatureCompilerService,
   instructionExamplesSetup: InstructionExamplesSetupDTO<TInstructionExample>
-): Promise<RenderedInstructionExample<TInstructionExample>[]> {
-  const tablatureService = new TablatureService();
+): Promise<InstructionExampleCompiledTablature<TInstructionExample>[]> {
+  const instructionsExamplesCompiledTablature: InstructionExampleCompiledTablature<TInstructionExample>[] =
+    [];
 
-  const renderedInstructionExamples: RenderedInstructionExample<TInstructionExample>[] = [];
   for (const instructionExample of instructionExamplesSetup.instructionExamples) {
-    const tabCreationResult = await tablatureService.createTablature(
-      new TablatureCreationDataDTO({
-        initialSpacing: instructionExamplesSetup.initialSpacing,
-        instructions: instructionExample.instruction,
-        numberOfStrings: instructionExamplesSetup.numberOfStrings,
-        rowsLength: instructionExamplesSetup.rowsLenght,
-      })
+    const tablatureCompilationOptions = new TablatureCompilationOptionsDTO({
+      numberOfStrings: instructionExamplesSetup.numberOfStrings,
+      initialSpacing: instructionExamplesSetup.initialSpacing,
+      rowsLength: instructionExamplesSetup.rowsLenght,
+    });
+    const tablatureCompilationResult = await tablatureCompilerService.compileTablaure(
+      instructionExample.instruction,
+      tablatureCompilationOptions
     );
 
-    if (tablatureService.isSuccessfulTablatureCreationResult(tabCreationResult)) {
-      renderedInstructionExamples.push({
+    if (
+      tablatureCompilerService.isSuccessfulTablatureCompilationResult(tablatureCompilationResult)
+    ) {
+      instructionsExamplesCompiledTablature.push({
         instructionExample: { ...instructionExample },
-        renderedTab: tabCreationResult.tablature.renderedTab,
+        tablature: tablatureCompilationResult.compiledTablature.tablature,
       });
     } else {
       throw new Error(
-        `Failed to render tab for example instruction ${instructionExample.instruction}`
+        `Failed to render tablature for example instruction ${instructionExample.instruction}`
       );
     }
   }
 
-  return renderedInstructionExamples;
+  return instructionsExamplesCompiledTablature;
 }

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/member-ordering */
 import { ErrorCode } from '@common/enums/error-code';
 import { BaseError as CommonBaseError } from '@common/view-models/errors/base-error';
 import { NextApiRequest } from 'next';

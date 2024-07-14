@@ -7,8 +7,7 @@ import NextLinkComposed from '@client/components/ui/next-link-composed';
 import TextFieldFontMonospace from '@client/components/ui/text-field-font-monospace';
 import { useHtmlElementSize } from '@client/hooks/use-html-element-size';
 import { TablatureCreationError } from '@client/models/tablature/tablature-creation-error';
-import { TablatureService } from '@client/services/tablature-service';
-import { TablatureInstructionRenderizationErrorDetails } from '@common/view-models/tablature/tablature-renderization-error';
+import { TablatureInstructionCompilationErrorDetails } from '@common/view-models/tablature/tablature-compilation-error';
 import CreateIcon from '@mui/icons-material/Create';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -30,6 +29,9 @@ import { Trans, useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import React, { useRef, useState } from 'react';
+
+import { container } from "@client/container";
+import { ITablatureService, ITablatureServiceInjectionToken } from '@client/services/tablature-service/interfaces/tablature-service.interface';
 
 export const DEFAULT_NUMBER_OF_STRINGS = 6;
 export const DEFAULT_INITIAL_SPACING = 3;
@@ -61,13 +63,13 @@ interface Tablature {
 }
 
 function createInvalidInstructionFromInstructionRenderizationError(
-  instructionRenderizationError: TablatureInstructionRenderizationErrorDetails
+  instructionRenderizationError: TablatureInstructionCompilationErrorDetails
 ): InvalidInstruction {
   let invalidChildInstructions: InvalidInstruction[] | null = null;
 
-  if (instructionRenderizationError.childInstructionsRenderizationErrors) {
+  if (instructionRenderizationError.childInstructionsCompilationErrors) {
     invalidChildInstructions =
-      instructionRenderizationError.childInstructionsRenderizationErrors.map(
+      instructionRenderizationError.childInstructionsCompilationErrors.map(
         createInvalidInstructionFromInstructionRenderizationError
       );
   }
@@ -75,7 +77,7 @@ function createInvalidInstructionFromInstructionRenderizationError(
   return {
     invalidChildInstructions,
     instruction: instructionRenderizationError.instruction,
-    description: instructionRenderizationError.renderizationErrorMessage,
+    description: instructionRenderizationError.compilationErrorMessage,
   };
 }
 
@@ -155,17 +157,19 @@ export default function Editor() {
     setIsCreatingTab(true);
 
     try {
-      let tablatureRowsLength = TablatureService.MIN_TABLATURE_ROWS_LENGTH;
+      const tablatureService = container.resolve<ITablatureService>(ITablatureServiceInjectionToken);
+
+      let tablatureRowsLength = tablatureService.getMinTablatureRowsLength();
       if (contentGridSize.width) {
         // The relation between the grid content width and tab's block length was determined empirically
         const tabBlockLenthFromGridContentWidth = Math.trunc(0.103 * contentGridSize.width - 6.58);
 
-        if (tabBlockLenthFromGridContentWidth > TablatureService.MIN_TABLATURE_ROWS_LENGTH) {
+        if (tabBlockLenthFromGridContentWidth > tablatureRowsLength) {
           tablatureRowsLength = tabBlockLenthFromGridContentWidth;
         }
       }
 
-      const tabCreationResult = await TablatureService.createTablature(
+      const tabCreationResult = await tablatureService.createTablature(
         {
           initialSpacing: initialSpacingInputValue,
           instructions: instructionsInputValue.trim(),
@@ -180,11 +184,11 @@ export default function Editor() {
       setCreatedTab({
         title: tabCreationResult.title,
         observations: tabCreationResult.observations,
-        blocks: tabCreationResult.renderedTab,
+        blocks: tabCreationResult.tablature,
       });
     } catch (error) {
-      if (error instanceof TablatureCreationError && error.instructionsRenderizationErrors) {
-        const invalidInstructions = error.instructionsRenderizationErrors.map(
+      if (error instanceof TablatureCreationError && error.instructionsCompilationErrors) {
+        const invalidInstructions = error.instructionsCompilationErrors.map(
           (instructionRenderizationError) =>
             createInvalidInstructionFromInstructionRenderizationError(instructionRenderizationError)
         );

@@ -14,15 +14,16 @@
     "allowJs": true,
     "skipLibCheck": true,
     "incremental": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "paths": {
       "@client/*": ["src/client/*"],
       "@common/*": ["src/common/*"],
       "@pages/*": ["src/pages/*"],
       "@server/*": ["src/server/*"],
-      "@test-mocks/*": ["tests/.mocks/*"],
-      "@test-utils/*": ["tests/.utils/*"],
-      "next-i18next.config": ["next-i18next.config"]
+      "@tests/*": ["tests/*"],
+      "@next-i18next.config": ["next-i18next.config"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],

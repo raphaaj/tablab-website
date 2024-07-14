@@ -1,61 +1,72 @@
 import { ErrorCode } from '@common/enums/error-code';
-import defaultTabsApiHandler, { createTabsApiHandler } from '@pages/api/tabs';
-import { BaseTablatureService } from '@server/services/tablature/base-tablature-service';
-import { TablatureCreationDataDTO } from '@server/services/tablature/dtos/tablature-creation-data-dto';
-import { TablatureCreationResultDTO } from '@server/services/tablature/dtos/tablature-creation-result-dto';
-import { TablatureDTO } from '@server/services/tablature/dtos/tablature-dto';
-import { TablatureInstructionRenderizationErrorDTO } from '@server/services/tablature/dtos/tablature-instruction-renderization-error-dto';
+import { TablatureCreationRequest } from '@common/view-models/tablature/tablature-creation-request';
+import tabsApiHandler from '@pages/api/tabs';
+import {
+  ITablatureErrorsProviderService,
+  ITablatureErrorsProviderServiceInjectionToken,
+} from '@server/services/errors-provider-services/tablature-errors-provider-service/interfaces/tablature-errors-provider-service.interface';
+import {
+  IRequestHelperService,
+  IRequestHelperServiceInjectionToken,
+} from '@server/services/request-helper-service/interfaces/request-helper-service.interface';
+import { CompiledTablatureDTO } from '@server/services/tablature-compiler-service/dtos/compiled-tablature.dto';
+import { TablatureCompilationOptionsDTO } from '@server/services/tablature-compiler-service/dtos/tablature-compilation-options.dto';
+import {
+  FailedTablatureCompilationResultDTO,
+  SuccessfulTablatureCompilationResultDTO,
+} from '@server/services/tablature-compiler-service/dtos/tablature-compilation-result.dto';
+import {
+  ITablatureCompilerService,
+  ITablatureCompilerServiceInjectionToken,
+} from '@server/services/tablature-compiler-service/interfaces/tablature-compiler-service.interface';
+import { InternalError } from '@server/view-models/error/internal-error';
+import { InvalidContentSyntaxError } from '@server/view-models/error/invalid-content-syntax-error';
+import { InvalidHttpMethodError } from '@server/view-models/error/invalid-http-method-error';
+import { TablatureCompilationError } from '@server/view-models/tablature/tablature-compilation-error';
+import { container } from '@tests/container';
+import { mock, mockReset } from 'jest-mock-extended';
 import { NextApiRequest, NextApiResponse } from 'next';
 import httpMocks, { RequestMethod } from 'node-mocks-http';
 
+const DEFAULT_TEST_LOCALE = 'zz-ZZ';
+
+const requestHelperServiceMock = mock<IRequestHelperService>();
+const tablatureErrorsProviderServiceMock = mock<ITablatureErrorsProviderService>();
+const tablatureCompilerServiceMock = mock<ITablatureCompilerService>();
+
+container.register<IRequestHelperService>(IRequestHelperServiceInjectionToken, {
+  useValue: requestHelperServiceMock,
+});
+container.register<ITablatureErrorsProviderService>(ITablatureErrorsProviderServiceInjectionToken, {
+  useValue: tablatureErrorsProviderServiceMock,
+});
+container.register<ITablatureCompilerService>(ITablatureCompilerServiceInjectionToken, {
+  useValue: tablatureCompilerServiceMock,
+});
+
+jest.mock('@server/container', () => {
+  return {
+    get container() {
+      return container;
+    },
+  };
+});
+
 const URL = '/api/tabs';
 
-class SuccessfulTablatureCreationTabService extends BaseTablatureService {
-  public createTablature(
-    tablatureCreationData: TablatureCreationDataDTO
-  ): Promise<TablatureCreationResultDTO> {
-    const tablature = new TablatureDTO({
-      initialSpacing: tablatureCreationData.initialSpacing,
-      instructions: tablatureCreationData.instructions,
-      numberOfStrings: tablatureCreationData.numberOfStrings,
-      renderedTab: [[]],
-      rowsLength: tablatureCreationData.rowsLength,
-      observations: tablatureCreationData.observations,
-      title: tablatureCreationData.title,
-    });
+beforeEach(() => {
+  mockReset(requestHelperServiceMock);
+  mockReset(tablatureErrorsProviderServiceMock);
+  mockReset(tablatureCompilerServiceMock);
 
-    return Promise.resolve({ success: true, tablature });
-  }
-}
+  requestHelperServiceMock.getLocaleOptionOrDefaultLocale.mockImplementationOnce(
+    () => DEFAULT_TEST_LOCALE
+  );
+});
 
-class FailedTabCreationTabService extends BaseTablatureService {
-  public instructionsRenderizationErrors: TablatureInstructionRenderizationErrorDTO[];
-
-  public constructor(instructionsRenderizationErrors: TablatureInstructionRenderizationErrorDTO[]) {
-    super();
-
-    this.instructionsRenderizationErrors = instructionsRenderizationErrors;
-  }
-
-  public createTablature(): Promise<TablatureCreationResultDTO> {
-    return Promise.resolve({
-      success: false,
-      instructionsRenderizationErrors: this.instructionsRenderizationErrors,
-    });
-  }
-}
-
-type TablatureCreationRequest = {
-  initialSpacing?: any;
-  instructions?: any;
-  numberOfStrings?: any;
-  observations?: any;
-  rowsLength?: any;
-  title?: any;
-  unknownField?: any;
-};
-
-function getRequestBody(customOptions: TablatureCreationRequest = {}): TablatureCreationRequest {
+function buildValidTablatureCreationRequest(
+  customOptions: Partial<TablatureCreationRequest> = {}
+): TablatureCreationRequest {
   return {
     initialSpacing: 1,
     instructions: '1-0',
@@ -65,11 +76,18 @@ function getRequestBody(customOptions: TablatureCreationRequest = {}): Tablature
   };
 }
 
-describe(URL, () => {
-  it('should have a default handler', () => {
-    expect(defaultTabsApiHandler).toBeDefined();
-  });
+function buildUnknownTablatureCreationRequest(
+  customOptions: Record<string, unknown> = {}
+): Record<string, unknown> {
+  const baseTablatureCreationRequest = buildValidTablatureCreationRequest();
 
+  return {
+    ...baseTablatureCreationRequest,
+    ...customOptions,
+  };
+}
+
+describe(URL, () => {
   describe('http methods handling', () => {
     it.each<RequestMethod>(['GET', 'PUT', 'PATCH', 'DELETE'])(
       'should return a 405 if HTTP method is %s',
@@ -77,17 +95,28 @@ describe(URL, () => {
         const request = httpMocks.createRequest<NextApiRequest>({ method, url: URL });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
-        await tabsHandler(request, response);
+        const invalidHttpMethodError = new InvalidHttpMethodError({
+          request,
+          message: 'Invalid HTTP method test message',
+          acceptedMethods: ['POST'],
+        });
+        tablatureErrorsProviderServiceMock.getInvalidHttpMethodError.mockResolvedValueOnce(
+          invalidHttpMethodError
+        );
+
+        await tabsApiHandler(request, response);
 
         const responseBody = response._getJSONData();
         const responseHeaders = response._getHeaders();
 
         expect(response.statusCode).toBe(405);
         expect(responseBody.errorCode).toBe(ErrorCode.Common_InvalidHttpMethodError);
+        expect(responseBody.message).toBe(invalidHttpMethodError.message);
         expect(responseBody.details.path).toBe(request.url);
         expect(responseBody.details.receivedMethod).toBe(method);
-        expect(responseBody.details.allowedMethods).toEqual(['POST']);
+        expect(responseBody.details.allowedMethods).toEqual(
+          invalidHttpMethodError.details?.allowedMethods
+        );
         expect(responseHeaders['content-type']).toBe('application/json');
       }
     );
@@ -95,23 +124,32 @@ describe(URL, () => {
 
   describe('request body validation', () => {
     it('should return 400 if no request body is sent', async () => {
-      const requestBody = {};
-
       const request = httpMocks.createRequest<NextApiRequest>({
         method: 'POST',
         url: URL,
-        body: requestBody,
       });
       const response = httpMocks.createResponse<NextApiResponse>();
 
-      const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
-      await tabsHandler(request, response);
+      const invalidContentSyntaxErrorMessage = 'Invalid content test message';
+      tablatureErrorsProviderServiceMock.getInvalidContentSyntaxError.mockImplementationOnce(
+        (request, validationErrors) =>
+          Promise.resolve(
+            new InvalidContentSyntaxError({
+              request,
+              message: invalidContentSyntaxErrorMessage,
+              validationErrors,
+            })
+          )
+      );
+
+      await tabsApiHandler(request, response);
 
       const responseBody = response._getJSONData();
       const responseHeaders = response._getHeaders();
 
       expect(response.statusCode).toBe(400);
       expect(responseBody.errorCode).toBe(ErrorCode.Common_InvalidContentSyntaxError);
+      expect(responseBody.message).toBe(invalidContentSyntaxErrorMessage);
       expect(responseBody.details.validationErrors).toBeDefined();
       expect(responseHeaders['content-type']).toBe('application/json');
     });
@@ -126,8 +164,7 @@ describe(URL, () => {
         ['a number smaller than 1', 0],
         ['a decimal number', 1.23],
       ])('should return 400 if the initialSpacing field is %s', async (_, initialSpacing) => {
-        const requestBody = getRequestBody({ initialSpacing });
-
+        const requestBody = buildUnknownTablatureCreationRequest({ initialSpacing });
         const request = httpMocks.createRequest<NextApiRequest>({
           method: 'POST',
           url: URL,
@@ -135,14 +172,26 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
-        await tabsHandler(request, response);
+        const invalidContentSyntaxErrorMessage = 'Invalid content test message - initialSpacing';
+        tablatureErrorsProviderServiceMock.getInvalidContentSyntaxError.mockImplementationOnce(
+          (request, validationErrors) =>
+            Promise.resolve(
+              new InvalidContentSyntaxError({
+                request,
+                message: invalidContentSyntaxErrorMessage,
+                validationErrors,
+              })
+            )
+        );
+
+        await tabsApiHandler(request, response);
 
         const responseBody = response._getJSONData();
         const responseHeaders = response._getHeaders();
 
         expect(response.statusCode).toBe(400);
         expect(responseBody.errorCode).toBe(ErrorCode.Common_InvalidContentSyntaxError);
+        expect(responseBody.message).toBe(invalidContentSyntaxErrorMessage);
         expect(responseBody.details.validationErrors).toBeDefined();
         expect(responseHeaders['content-type']).toBe('application/json');
       });
@@ -159,8 +208,7 @@ describe(URL, () => {
         ['an empty string', ''],
         ['a string with spaces', ' '],
       ])('should return 400 if the instructions field is %s', async (_, instructions) => {
-        const requestBody = getRequestBody({ instructions });
-
+        const requestBody = buildUnknownTablatureCreationRequest({ instructions });
         const request = httpMocks.createRequest<NextApiRequest>({
           method: 'POST',
           url: URL,
@@ -168,14 +216,26 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
-        await tabsHandler(request, response);
+        const invalidContentSyntaxErrorMessage = 'Invalid content test message - instructions';
+        tablatureErrorsProviderServiceMock.getInvalidContentSyntaxError.mockImplementationOnce(
+          (request, validationErrors) =>
+            Promise.resolve(
+              new InvalidContentSyntaxError({
+                request,
+                message: invalidContentSyntaxErrorMessage,
+                validationErrors,
+              })
+            )
+        );
+
+        await tabsApiHandler(request, response);
 
         const responseBody = response._getJSONData();
         const responseHeaders = response._getHeaders();
 
         expect(response.statusCode).toBe(400);
         expect(responseBody.errorCode).toBe(ErrorCode.Common_InvalidContentSyntaxError);
+        expect(responseBody.message).toBe(invalidContentSyntaxErrorMessage);
         expect(responseBody.details.validationErrors).toBeDefined();
         expect(responseHeaders['content-type']).toBe('application/json');
       });
@@ -192,8 +252,7 @@ describe(URL, () => {
         ['a number greater than 12', 13],
         ['a decimal number', 1.23],
       ])('should return 400 if the numberOfStrings field is %s', async (_, numberOfStrings) => {
-        const requestBody = getRequestBody({ numberOfStrings });
-
+        const requestBody = buildUnknownTablatureCreationRequest({ numberOfStrings });
         const request = httpMocks.createRequest<NextApiRequest>({
           method: 'POST',
           url: URL,
@@ -201,14 +260,26 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
-        await tabsHandler(request, response);
+        const invalidContentSyntaxErrorMessage = 'Invalid content test message - numberOfStrings';
+        tablatureErrorsProviderServiceMock.getInvalidContentSyntaxError.mockImplementationOnce(
+          (request, validationErrors) =>
+            Promise.resolve(
+              new InvalidContentSyntaxError({
+                request,
+                message: invalidContentSyntaxErrorMessage,
+                validationErrors,
+              })
+            )
+        );
+
+        await tabsApiHandler(request, response);
 
         const responseBody = response._getJSONData();
         const responseHeaders = response._getHeaders();
 
         expect(response.statusCode).toBe(400);
         expect(responseBody.errorCode).toBe(ErrorCode.Common_InvalidContentSyntaxError);
+        expect(responseBody.message).toBe(invalidContentSyntaxErrorMessage);
         expect(responseBody.details.validationErrors).toBeDefined();
         expect(responseHeaders['content-type']).toBe('application/json');
       });
@@ -221,8 +292,7 @@ describe(URL, () => {
         ['a number', 1],
         ['a decimal number', 1.23],
       ])('should return 400 if the observations field is %s', async (_, observations) => {
-        const requestBody = getRequestBody({ observations });
-
+        const requestBody = buildUnknownTablatureCreationRequest({ observations });
         const request = httpMocks.createRequest<NextApiRequest>({
           method: 'POST',
           url: URL,
@@ -230,14 +300,26 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
-        await tabsHandler(request, response);
+        const invalidContentSyntaxErrorMessage = 'Invalid content test message - observations';
+        tablatureErrorsProviderServiceMock.getInvalidContentSyntaxError.mockImplementationOnce(
+          (request, validationErrors) =>
+            Promise.resolve(
+              new InvalidContentSyntaxError({
+                request,
+                message: invalidContentSyntaxErrorMessage,
+                validationErrors,
+              })
+            )
+        );
+
+        await tabsApiHandler(request, response);
 
         const responseBody = response._getJSONData();
         const responseHeaders = response._getHeaders();
 
         expect(response.statusCode).toBe(400);
         expect(responseBody.errorCode).toBe(ErrorCode.Common_InvalidContentSyntaxError);
+        expect(responseBody.message).toBe(invalidContentSyntaxErrorMessage);
         expect(responseBody.details.validationErrors).toBeDefined();
         expect(responseHeaders['content-type']).toBe('application/json');
       });
@@ -254,8 +336,7 @@ describe(URL, () => {
         ['a number greater than 500', 501],
         ['a decimal number', 15.67],
       ])('should return 400 if the rowsLength field is %s', async (_, rowsLength) => {
-        const requestBody = getRequestBody({ rowsLength: rowsLength });
-
+        const requestBody = buildUnknownTablatureCreationRequest({ rowsLength });
         const request = httpMocks.createRequest<NextApiRequest>({
           method: 'POST',
           url: URL,
@@ -263,14 +344,26 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
-        await tabsHandler(request, response);
+        const invalidContentSyntaxErrorMessage = 'Invalid content test message - rowsLength';
+        tablatureErrorsProviderServiceMock.getInvalidContentSyntaxError.mockImplementationOnce(
+          (request, validationErrors) =>
+            Promise.resolve(
+              new InvalidContentSyntaxError({
+                request,
+                message: invalidContentSyntaxErrorMessage,
+                validationErrors,
+              })
+            )
+        );
+
+        await tabsApiHandler(request, response);
 
         const responseBody = response._getJSONData();
         const responseHeaders = response._getHeaders();
 
         expect(response.statusCode).toBe(400);
         expect(responseBody.errorCode).toBe(ErrorCode.Common_InvalidContentSyntaxError);
+        expect(responseBody.message).toBe(invalidContentSyntaxErrorMessage);
         expect(responseBody.details.validationErrors).toBeDefined();
         expect(responseHeaders['content-type']).toBe('application/json');
       });
@@ -283,8 +376,7 @@ describe(URL, () => {
         ['a number', 1],
         ['a decimal number', 1.23],
       ])('should return 400 if the title field is %s', async (_, title) => {
-        const requestBody = getRequestBody({ title });
-
+        const requestBody = buildUnknownTablatureCreationRequest({ title });
         const request = httpMocks.createRequest<NextApiRequest>({
           method: 'POST',
           url: URL,
@@ -292,14 +384,26 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
-        await tabsHandler(request, response);
+        const invalidContentSyntaxErrorMessage = 'Invalid content test message - title';
+        tablatureErrorsProviderServiceMock.getInvalidContentSyntaxError.mockImplementationOnce(
+          (request, validationErrors) =>
+            Promise.resolve(
+              new InvalidContentSyntaxError({
+                request,
+                message: invalidContentSyntaxErrorMessage,
+                validationErrors,
+              })
+            )
+        );
+
+        await tabsApiHandler(request, response);
 
         const responseBody = response._getJSONData();
         const responseHeaders = response._getHeaders();
 
         expect(response.statusCode).toBe(400);
         expect(responseBody.errorCode).toBe(ErrorCode.Common_InvalidContentSyntaxError);
+        expect(responseBody.message).toBe(invalidContentSyntaxErrorMessage);
         expect(responseBody.details.validationErrors).toBeDefined();
         expect(responseHeaders['content-type']).toBe('application/json');
       });
@@ -307,9 +411,7 @@ describe(URL, () => {
 
     describe('unknown fields', () => {
       it('should return 400 if any unknwon field is set', async () => {
-        const unknownField = 'some value';
-        const requestBody = getRequestBody({ unknownField: unknownField });
-
+        const requestBody = buildUnknownTablatureCreationRequest({ unknownField: 'some value' });
         const request = httpMocks.createRequest<NextApiRequest>({
           method: 'POST',
           url: URL,
@@ -317,14 +419,26 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
-        await tabsHandler(request, response);
+        const invalidContentSyntaxErrorMessage = 'Invalid content test message - unknown fields';
+        tablatureErrorsProviderServiceMock.getInvalidContentSyntaxError.mockImplementationOnce(
+          (request, validationErrors) =>
+            Promise.resolve(
+              new InvalidContentSyntaxError({
+                request,
+                message: invalidContentSyntaxErrorMessage,
+                validationErrors,
+              })
+            )
+        );
+
+        await tabsApiHandler(request, response);
 
         const responseBody = response._getJSONData();
         const responseHeaders = response._getHeaders();
 
         expect(response.statusCode).toBe(400);
         expect(responseBody.errorCode).toBe(ErrorCode.Common_InvalidContentSyntaxError);
+        expect(responseBody.message).toBe(invalidContentSyntaxErrorMessage);
         expect(responseBody.details.validationErrors).toBeDefined();
         expect(responseHeaders['content-type']).toBe('application/json');
       });
@@ -333,8 +447,7 @@ describe(URL, () => {
 
   describe('tab creation', () => {
     it('should return 201 when only the required fields are given and a tab is successfully created', async () => {
-      const requestBody = getRequestBody();
-
+      const requestBody = buildValidTablatureCreationRequest();
       const request = httpMocks.createRequest<NextApiRequest>({
         method: 'POST',
         url: URL,
@@ -342,33 +455,49 @@ describe(URL, () => {
       });
       const response = httpMocks.createResponse<NextApiResponse>();
 
-      const tabService = new SuccessfulTablatureCreationTabService();
-      const createTabSpy = jest.spyOn(tabService, 'createTablature');
-      const tabsHandler = createTabsApiHandler(tabService);
-      await tabsHandler(request, response);
+      const tablature: string[][] = [['']];
+      tablatureCompilerServiceMock.compileTablaure.mockImplementationOnce(
+        (_, tablatureCompilationOptions) =>
+          Promise.resolve(
+            new SuccessfulTablatureCompilationResultDTO(
+              new CompiledTablatureDTO({ tablature, tablatureCompilationOptions })
+            )
+          )
+      );
+      tablatureCompilerServiceMock.isSuccessfulTablatureCompilationResult.mockImplementationOnce(
+        () => true
+      );
+
+      await tabsApiHandler(request, response);
 
       const responseBody = response._getJSONData();
       const responseHeaders = response._getHeaders();
 
+      expect(tablatureCompilerServiceMock.compileTablaure).toHaveBeenCalledTimes(1);
+      expect(tablatureCompilerServiceMock.compileTablaure).toHaveBeenCalledWith(
+        requestBody.instructions,
+        new TablatureCompilationOptionsDTO({
+          numberOfStrings: request.body.numberOfStrings,
+          initialSpacing: request.body.initialSpacing,
+          rowsLength: request.body.rowsLength,
+          locale: DEFAULT_TEST_LOCALE,
+        })
+      );
+
       expect(response.statusCode).toBe(201);
-      expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body), {
-        locale: expect.any(String),
-      });
       expect(responseBody.title).toBe(null);
       expect(responseBody.observations).toBe(null);
       expect(responseBody.numberOfStrings).toBe(requestBody.numberOfStrings);
       expect(responseBody.initialSpacing).toBe(requestBody.initialSpacing);
       expect(responseBody.rowsLength).toBe(requestBody.rowsLength);
       expect(responseBody.instructions).toBe(requestBody.instructions);
-      expect(responseBody.renderedTab).toBeDefined();
+      expect(responseBody.tablature).toEqual(tablature);
       expect(responseHeaders['content-type']).toBe('application/json');
     });
 
     it('should return 201 when a title is given with the required fields and a tab is successfully created', async () => {
       const title = 'a test title';
-      const requestBody = getRequestBody({ title });
-
+      const requestBody = buildValidTablatureCreationRequest({ title });
       const request = httpMocks.createRequest<NextApiRequest>({
         method: 'POST',
         url: URL,
@@ -376,33 +505,49 @@ describe(URL, () => {
       });
       const response = httpMocks.createResponse<NextApiResponse>();
 
-      const tabService = new SuccessfulTablatureCreationTabService();
-      const createTabSpy = jest.spyOn(tabService, 'createTablature');
-      const tabsHandler = createTabsApiHandler(tabService);
-      await tabsHandler(request, response);
+      const tablature: string[][] = [['']];
+      tablatureCompilerServiceMock.compileTablaure.mockImplementationOnce(
+        (_, tablatureCompilationOptions) =>
+          Promise.resolve(
+            new SuccessfulTablatureCompilationResultDTO(
+              new CompiledTablatureDTO({ tablature, tablatureCompilationOptions })
+            )
+          )
+      );
+      tablatureCompilerServiceMock.isSuccessfulTablatureCompilationResult.mockImplementationOnce(
+        () => true
+      );
+
+      await tabsApiHandler(request, response);
 
       const responseBody = response._getJSONData();
       const responseHeaders = response._getHeaders();
 
+      expect(tablatureCompilerServiceMock.compileTablaure).toHaveBeenCalledTimes(1);
+      expect(tablatureCompilerServiceMock.compileTablaure).toHaveBeenCalledWith(
+        requestBody.instructions,
+        new TablatureCompilationOptionsDTO({
+          numberOfStrings: request.body.numberOfStrings,
+          initialSpacing: request.body.initialSpacing,
+          rowsLength: request.body.rowsLength,
+          locale: DEFAULT_TEST_LOCALE,
+        })
+      );
+
       expect(response.statusCode).toBe(201);
-      expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body), {
-        locale: expect.any(String),
-      });
       expect(responseBody.title).toBe(title);
       expect(responseBody.observations).toBe(null);
       expect(responseBody.numberOfStrings).toBe(requestBody.numberOfStrings);
       expect(responseBody.initialSpacing).toBe(requestBody.initialSpacing);
       expect(responseBody.rowsLength).toBe(requestBody.rowsLength);
       expect(responseBody.instructions).toBe(requestBody.instructions);
-      expect(responseBody.renderedTab).toBeDefined();
+      expect(responseBody.tablature).toEqual(tablature);
       expect(responseHeaders['content-type']).toBe('application/json');
     });
 
     it('should return 201 when some observations are given with the required fields and a tab is successfully created', async () => {
-      const observations = 'a test title';
-      const requestBody = getRequestBody({ observations });
-
+      const observations = 'some test observations';
+      const requestBody = buildValidTablatureCreationRequest({ observations });
       const request = httpMocks.createRequest<NextApiRequest>({
         method: 'POST',
         url: URL,
@@ -410,32 +555,48 @@ describe(URL, () => {
       });
       const response = httpMocks.createResponse<NextApiResponse>();
 
-      const tabService = new SuccessfulTablatureCreationTabService();
-      const createTabSpy = jest.spyOn(tabService, 'createTablature');
-      const tabsHandler = createTabsApiHandler(tabService);
-      await tabsHandler(request, response);
+      const tablature: string[][] = [['']];
+      tablatureCompilerServiceMock.compileTablaure.mockImplementationOnce(
+        (_, tablatureCompilationOptions) =>
+          Promise.resolve(
+            new SuccessfulTablatureCompilationResultDTO(
+              new CompiledTablatureDTO({ tablature, tablatureCompilationOptions })
+            )
+          )
+      );
+      tablatureCompilerServiceMock.isSuccessfulTablatureCompilationResult.mockImplementationOnce(
+        () => true
+      );
+
+      await tabsApiHandler(request, response);
 
       const responseBody = response._getJSONData();
       const responseHeaders = response._getHeaders();
 
+      expect(tablatureCompilerServiceMock.compileTablaure).toHaveBeenCalledTimes(1);
+      expect(tablatureCompilerServiceMock.compileTablaure).toHaveBeenCalledWith(
+        requestBody.instructions,
+        new TablatureCompilationOptionsDTO({
+          numberOfStrings: request.body.numberOfStrings,
+          initialSpacing: request.body.initialSpacing,
+          rowsLength: request.body.rowsLength,
+          locale: DEFAULT_TEST_LOCALE,
+        })
+      );
+
       expect(response.statusCode).toBe(201);
-      expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body), {
-        locale: expect.any(String),
-      });
       expect(responseBody.title).toBe(null);
       expect(responseBody.observations).toBe(observations);
       expect(responseBody.numberOfStrings).toBe(requestBody.numberOfStrings);
       expect(responseBody.initialSpacing).toBe(requestBody.initialSpacing);
       expect(responseBody.rowsLength).toBe(requestBody.rowsLength);
       expect(responseBody.instructions).toBe(requestBody.instructions);
-      expect(responseBody.renderedTab).toBeDefined();
+      expect(responseBody.tablature).toEqual(tablature);
       expect(responseHeaders['content-type']).toBe('application/json');
     });
 
     it('should return 422 when the required fields are given and valid, but a tab cannot be created with it', async () => {
-      const requestBody = getRequestBody();
-
+      const requestBody = buildValidTablatureCreationRequest();
       const request = httpMocks.createRequest<NextApiRequest>({
         method: 'POST',
         url: URL,
@@ -443,37 +604,49 @@ describe(URL, () => {
       });
       const response = httpMocks.createResponse<NextApiResponse>();
 
-      const instruction = 'instruction';
-      const instructionRenderizationError = new TablatureInstructionRenderizationErrorDTO({
-        instruction,
-        instructionStartIndex: 0,
-        instructionEndIndex: instruction.length - 1,
-        renderizationErrorType: 'RENDERIZATION_ERROR_TYPE',
-        renderizationErrorMessage: 'Renderization Error Message',
-        childInstructionsRenderizationErrors: null,
-      });
+      tablatureCompilerServiceMock.compileTablaure.mockResolvedValueOnce(
+        new FailedTablatureCompilationResultDTO([])
+      );
+      tablatureCompilerServiceMock.isSuccessfulTablatureCompilationResult.mockImplementationOnce(
+        () => false
+      );
 
-      const tabService = new FailedTabCreationTabService([instructionRenderizationError]);
-      const createTabSpy = jest.spyOn(tabService, 'createTablature');
-      const tabsHandler = createTabsApiHandler(tabService);
-      await tabsHandler(request, response);
+      const tablatureCompilationError = new TablatureCompilationError({
+        request,
+        message: 'Tablature compilation error message',
+        instructionsCompilationErrors: [],
+      });
+      tablatureErrorsProviderServiceMock.getTablatureCompilationError.mockResolvedValueOnce(
+        tablatureCompilationError
+      );
+
+      await tabsApiHandler(request, response);
 
       const responseBody = response._getJSONData();
       const responseHeaders = response._getHeaders();
 
+      expect(tablatureCompilerServiceMock.compileTablaure).toHaveBeenCalledTimes(1);
+      expect(tablatureCompilerServiceMock.compileTablaure).toHaveBeenCalledWith(
+        requestBody.instructions,
+        new TablatureCompilationOptionsDTO({
+          numberOfStrings: request.body.numberOfStrings,
+          initialSpacing: request.body.initialSpacing,
+          rowsLength: request.body.rowsLength,
+          locale: DEFAULT_TEST_LOCALE,
+        })
+      );
+
       expect(response.statusCode).toBe(422);
-      expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body), {
-        locale: expect.any(String),
-      });
-      expect(responseBody.errorCode).toBe(ErrorCode.Tab_RenderizationError);
-      expect(responseBody.details.instructionsRenderizationErrors).toBeDefined();
+      expect(responseBody.errorCode).toBe(ErrorCode.Tablature_CompilationError);
+      expect(responseBody.message).toBe(tablatureCompilationError.message);
+      expect(responseBody.details.instructionsCompilationErrors).toEqual(
+        tablatureCompilationError.details?.instructionsCompilationErrors
+      );
       expect(responseHeaders['content-type']).toBe('application/json');
     });
 
     it('should return 500 when an unknown error occurs', async () => {
-      const requestBody = getRequestBody();
-
+      const requestBody = buildValidTablatureCreationRequest();
       const request = httpMocks.createRequest<NextApiRequest>({
         method: 'POST',
         url: URL,
@@ -481,22 +654,23 @@ describe(URL, () => {
       });
       const response = httpMocks.createResponse<NextApiResponse>();
 
-      const tabService = new SuccessfulTablatureCreationTabService();
-      const createTabSpy = jest
-        .spyOn(tabService, 'createTablature')
-        .mockRejectedValue(new Error('test'));
-      const tabsHandler = createTabsApiHandler(tabService);
-      await tabsHandler(request, response);
+      tablatureCompilerServiceMock.compileTablaure.mockRejectedValueOnce(new Error('Test error'));
+
+      const internalErrorMessage = 'Internal error message';
+      const internalError = new InternalError({
+        request,
+        message: internalErrorMessage,
+      });
+      tablatureErrorsProviderServiceMock.getInternalError.mockResolvedValueOnce(internalError);
+
+      await tabsApiHandler(request, response);
 
       const responseBody = response._getJSONData();
       const responseHeaders = response._getHeaders();
 
       expect(response.statusCode).toBe(500);
-      expect(createTabSpy).toHaveBeenCalledTimes(1);
-      expect(createTabSpy).toHaveBeenCalledWith(new TablatureCreationDataDTO(request.body), {
-        locale: expect.any(String),
-      });
       expect(responseBody.errorCode).toBe(ErrorCode.Common_UnknownError);
+      expect(responseBody.message).toBe(internalErrorMessage);
       expect(responseBody.details).toBe(null);
       expect(responseHeaders['content-type']).toBe('application/json');
     });
@@ -504,9 +678,8 @@ describe(URL, () => {
 
   describe('headers', () => {
     describe('content-language', () => {
-      it('should set the content-language header to en-US when no language preference indication is given', async () => {
-        const requestBody = getRequestBody();
-
+      it('should set the content-language header', async () => {
+        const requestBody = buildValidTablatureCreationRequest();
         const request = httpMocks.createRequest<NextApiRequest>({
           method: 'POST',
           url: URL,
@@ -514,44 +687,11 @@ describe(URL, () => {
         });
         const response = httpMocks.createResponse<NextApiResponse>();
 
-        const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
-        await tabsHandler(request, response);
+        await tabsApiHandler(request, response);
 
         const responseHeaders = response._getHeaders();
-
-        expect(responseHeaders['content-language']).toBe('en-US');
+        expect(responseHeaders['content-language']).toBe(DEFAULT_TEST_LOCALE);
       });
-
-      it.each([
-        ['en-US', 'en-US'],
-        ['pt-BR', 'pt-BR'],
-        ['en-US', 'de-DE'],
-        ['en-US', 'en-US;q=0.9, pt-BR;q=0.8'],
-        ['pt-BR', 'en-US;q=0.8, pt-BR;q=0.9'],
-        ['en-US', 'de-DE;q=0.9, en-US;q=0.8, pt-BR;q=0.7'],
-        ['pt-BR', 'de-DE;q=0.9, en-US;q=0.7, pt-BR;q=0.8'],
-      ])(
-        'should set the content-language header to %s when the accept-language is set to %s',
-        async (expectedContentLanguage, acceptLanguage) => {
-          const requestBody = getRequestBody();
-          const requestHeaders = { 'accept-language': acceptLanguage };
-
-          const request = httpMocks.createRequest<NextApiRequest>({
-            method: 'POST',
-            url: URL,
-            body: requestBody,
-            headers: requestHeaders,
-          });
-          const response = httpMocks.createResponse<NextApiResponse>();
-
-          const tabsHandler = createTabsApiHandler(new SuccessfulTablatureCreationTabService());
-          await tabsHandler(request, response);
-
-          const responseHeaders = response._getHeaders();
-
-          expect(responseHeaders['content-language']).toBe(expectedContentLanguage);
-        }
-      );
     });
   });
 });

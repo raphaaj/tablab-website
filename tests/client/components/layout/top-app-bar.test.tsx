@@ -3,10 +3,10 @@ import TopAppBar, {
   LOWLIGHT_OPACITY,
 } from '@client/components/layout/top-app-bar';
 import { ThemeProvider } from '@mui/material/styles';
-import { createThemeMock } from '@test-utils/create-theme-mock';
+import nextI18nextConfig from '@next-i18next.config';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import nextI18nextConfig from 'next-i18next.config';
+import { createThemeMock } from '@tests/.utils/create-theme-mock';
 
 // https://react.i18next.com/misc/testing
 jest.mock('react-i18next', () => ({

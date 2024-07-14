@@ -1,16 +1,16 @@
 import { BaseError, BaseErrorData } from '@common/models/errors/base-error';
-import { TablatureInstructionRenderizationErrorDetails } from '@common/view-models/tablature/tablature-renderization-error';
+import { TablatureInstructionCompilationErrorDetails } from '@common/view-models/tablature/tablature-compilation-error';
 
 export interface TablatureCreationErrorData extends BaseErrorData {
-  instructionsRenderizationErrors?: TablatureInstructionRenderizationErrorDetails[] | null;
+  instructionsCompilationErrors?: TablatureInstructionCompilationErrorDetails[] | null;
 }
 
 export class TablatureCreationError extends BaseError {
-  public instructionsRenderizationErrors: TablatureInstructionRenderizationErrorDetails[] | null;
+  public instructionsCompilationErrors: TablatureInstructionCompilationErrorDetails[] | null;
 
   public constructor(errorData: TablatureCreationErrorData = {}) {
     super(errorData);
 
-    this.instructionsRenderizationErrors = errorData.instructionsRenderizationErrors || null;
+    this.instructionsCompilationErrors = errorData.instructionsCompilationErrors || null;
   }
 }

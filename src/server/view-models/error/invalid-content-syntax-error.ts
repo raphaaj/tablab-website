@@ -2,11 +2,12 @@ import { ErrorCode } from '@common/enums/error-code';
 import {
   InvalidContentSyntaxError as CommonInvalidContentSyntaxError,
   InvalidContentSyntaxErrorDetails as CommonInvalidContentSyntaxErrorDetails,
+  ValidationError,
 } from '@common/view-models/errors/invalid-content-syntax-error';
 import { BaseError, CommonErrorData } from '@server/view-models/error/base-error';
 
 class InvalidContentSyntaxErrorDetails implements CommonInvalidContentSyntaxErrorDetails {
-  public validationErrors: any;
+  public validationErrors: ValidationError[];
 
   public constructor(errorDetailsData: InvalidContentSyntaxErrorDetails) {
     this.validationErrors = errorDetailsData.validationErrors;
@@ -14,7 +15,7 @@ class InvalidContentSyntaxErrorDetails implements CommonInvalidContentSyntaxErro
 }
 
 export interface InvalidContentSyntaxErrorData extends CommonErrorData {
-  validationErrors: any;
+  validationErrors: ValidationError[];
 }
 
 export class InvalidContentSyntaxError

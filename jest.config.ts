@@ -1,5 +1,5 @@
-import nextJest from 'next/jest';
 import type { Config as JestConfig } from '@jest/types';
+import nextJest from 'next/jest';
 
 const createJestConfig = nextJest({ dir: './' });
 
@@ -12,9 +12,8 @@ const customJestConfig: JestConfig.InitialOptions = {
     '^@common/(.*)$': '<rootDir>/src/common/$1',
     '^@pages/(.*)$': '<rootDir>/src/pages/$1',
     '^@server/(.*)$': '<rootDir>/src/server/$1',
-    '^@test-mocks/(.*)$': '<rootDir>/tests/.mocks/$1',
-    '^@test-utils/(.*)$': '<rootDir>/tests/.utils/$1',
-    '^next-i18next.config$': '<rootDir>/next-i18next.config',
+    '^@tests/(.*)$': '<rootDir>/tests/$1',
+    '^@next-i18next\.config$': '<rootDir>/next-i18next.config',
   },
 };
 

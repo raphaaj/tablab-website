@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/member-ordering */
-
 export interface TablatureCreationResponse {
   title: string | null;
   observations: string | null;
@@ -7,5 +5,5 @@ export interface TablatureCreationResponse {
   initialSpacing: number;
   rowsLength: number;
   instructions: string;
-  renderedTab: string[][];
+  tablature: string[][];
 }

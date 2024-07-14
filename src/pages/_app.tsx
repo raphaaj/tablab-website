@@ -3,12 +3,13 @@
  * * https://mui.com/pt/material-ui/getting-started/example-projects/
  * * https://github.com/mui/material-ui/blob/master/examples/material-ui-nextjs-pages-router-ts/pages/_app.tsx
  */
+import 'reflect-metadata';
+
 import {
   SnackbarReducerContext,
   SnackbarReducerContextProvider,
 } from '@client/contexts/snackbar-reducer.context';
 import { createInitialSnackbarState, snackbarReducer } from '@client/reducers/snackbar.reducer';
-import '@client/styles/global.css';
 import createTheme from '@client/styles/theme/create-theme';
 import createEmotionCache from '@common/utils/create-emotion-cache';
 import { CacheProvider, EmotionCache } from '@emotion/react';
@@ -19,6 +20,12 @@ import { AppProps } from 'next/app';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useMemo, useReducer } from 'react';
+
+import { setupContainer } from '@client/container';
+
+import '@client/styles/global.css';
+
+setupContainer();
 
 function MyApp(props: AppProps) {
   const { Component, pageProps } = props;
