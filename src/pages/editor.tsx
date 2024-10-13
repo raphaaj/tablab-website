@@ -450,16 +450,32 @@ export default function Editor() {
                   observations={createdTab.observations}
                   title={createdTab.title}
                 />
-                <Box sx={{ textAlign: 'center', mt: 3 }}>
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    endIcon={<SaveAltIcon />}
-                    disabled={isDownloadingTab}
-                    onClick={handleDownloadTablature}
-                  >
-                    {t('tab-download.controls.download.label')}
-                  </Button>
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 5 }}>
+                  <Box sx={{ position: 'relative' }}>
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      endIcon={<SaveAltIcon />}
+                      disabled={isDownloadingTab}
+                      onClick={handleDownloadTablature}
+                    >
+                      {t('tab-download.controls.download.label')}
+                    </Button>
+                    {isDownloadingTab && (
+                      <CircularProgress
+                        size={20}
+                        thickness={5}
+                        sx={{
+                          color: (theme) => theme.palette.secondary.contrastText,
+                          position: 'absolute',
+                          top: '50%',
+                          left: '50%',
+                          marginTop: '-10px',
+                          marginLeft: '-10px',
+                        }}
+                      />
+                    )}
+                  </Box>
                 </Box>
               </>
             )}
