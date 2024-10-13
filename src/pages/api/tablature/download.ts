@@ -13,26 +13,19 @@ import {
   ITablatureCompilerService,
   ITablatureCompilerServiceInjectionToken,
 } from '@server/services/tablature-compiler-service/interfaces/tablature-compiler-service.interface';
-import { InternalError } from '@server/view-models/error/internal-error';
-import { InvalidContentSyntaxError } from '@server/view-models/error/invalid-content-syntax-error';
-import { InvalidHttpMethodError } from '@server/view-models/error/invalid-http-method-error';
-import { TablatureCompilationError } from '@server/view-models/tablature/tablature-compilation-error';
-import { TablatureCreationRequestValidator } from '@server/view-models/tablature/tablature-creation-request-validator';
-import { TablatureCreationResponse } from '@server/view-models/tablature/tablature-creation-response';
 import { NextApiRequest, NextApiResponse } from 'next';
 
+import {
+  ITablatureRowLabelService,
+  ITablatureRowLabelServiceInjectionToken,
+} from '@common/services/tablature-row-label-service/interfaces/tablature-row-label-service.interface';
 import { container } from '@server/container';
-
-type TablatureResponseData =
-  | TablatureCreationResponse
-  | TablatureCompilationError
-  | InvalidContentSyntaxError
-  | InvalidHttpMethodError
-  | InternalError;
+import { TablaturePdfDocumentWriter } from '@server/entities/tablature-pdf-document-writer';
+import { TablatureDownloadRequestValidator } from '@server/view-models/tablature/tablature-download-request-validator';
 
 export default async function handler(
   request: NextApiRequest,
-  response: NextApiResponse<TablatureResponseData>
+  response: NextApiResponse
 ): Promise<void> {
   const requestHelperService = container.resolve<IRequestHelperService>(
     IRequestHelperServiceInjectionToken
@@ -43,8 +36,11 @@ export default async function handler(
   const tablatureCompilerService = container.resolve<ITablatureCompilerService>(
     ITablatureCompilerServiceInjectionToken
   );
+  const tablatureRowLabelService = container.resolve<ITablatureRowLabelService>(
+    ITablatureRowLabelServiceInjectionToken
+  );
 
-  let result: TablatureResponseData;
+  let result: object;
   try {
     const locale = requestHelperService.getLocaleOptionOrDefaultLocale(request);
     response.setHeader('Content-Language', locale);
@@ -54,20 +50,24 @@ export default async function handler(
       return response.status(405).json(result);
     }
 
-    const tablatureCreationRequestValidator = new TablatureCreationRequestValidator(locale);
+    const tablatureDownloadRequestValidator = new TablatureDownloadRequestValidator(locale);
 
-    if (!tablatureCreationRequestValidator.isTablatureCreationRequestObjectValid(request.body)) {
+    if (!tablatureDownloadRequestValidator.isTablatureDownloadRequestObjectValid(request.body)) {
       result = await tablatureErrorsProviderService.getInvalidContentSyntaxError(
         request,
-        tablatureCreationRequestValidator.validationErrors
+        tablatureDownloadRequestValidator.validationErrors
       );
       return response.status(400).json(result);
     }
 
+    const tablatureRowLabelLength = tablatureRowLabelService.getTablatureRowLabelLength(
+      request.body.numberOfStrings
+    );
+
     const tablatureCompilationOptions = new TablatureCompilationOptionsDTO({
       numberOfStrings: request.body.numberOfStrings,
       initialSpacing: request.body.initialSpacing,
-      rowsLength: request.body.rowsLength,
+      rowsLength: 84 - tablatureRowLabelLength,
       locale,
     });
 
@@ -86,21 +86,32 @@ export default async function handler(
       return response.status(422).json(result);
     }
 
-    result = new TablatureCreationResponse({
-      title: request.body.title ?? null,
-      observations: request.body.observations ?? null,
-      numberOfStrings:
-        tablatureCompilationResult.compiledTablature.tablatureCompilationOptions.numberOfStrings,
-      initialSpacing:
-        tablatureCompilationResult.compiledTablature.tablatureCompilationOptions.initialSpacing,
-      rowsLength:
-        tablatureCompilationResult.compiledTablature.tablatureCompilationOptions.rowsLength,
-      instructions: request.body.instructions,
-      tablature: tablatureCompilationResult.compiledTablature.tablature,
+    const compiledTablatureWithRowLabels =
+      tablatureCompilationResult.compiledTablature.tablature.map((tablatureBlock) =>
+        tablatureRowLabelService.addLabelToTablatureBlockRows(tablatureBlock)
+      );
+
+    response
+      .status(200)
+      .setHeader('Content-Disposition', 'attachment; filename=tablature.pdf')
+      .setHeader('Content-Type', 'application/pdf');
+
+    const tablatureTitle = request.body.title?.trim();
+    const tablatureObservations = request.body.observations?.trim();
+
+    const tablaturePdfDocument = new TablaturePdfDocumentWriter({
+      title: tablatureTitle ?? '',
+      outputStream: response,
     });
 
-    return response.status(201).json(result);
-  } catch (e) {
+    if (tablatureTitle) tablaturePdfDocument.writeTitle(tablatureTitle);
+    if (tablatureObservations) tablaturePdfDocument.writeObservations(tablatureObservations);
+
+    tablaturePdfDocument
+      .writeTablature(compiledTablatureWithRowLabels)
+      .writeDefaultFooterOnAllPages()
+      .close();
+  } catch (error) {
     result = await tablatureErrorsProviderService.getInternalError(request);
     return response.status(500).json(result);
   }

@@ -12,3 +12,8 @@
   font-family: 'Gloria Hallelujah';
   src: url('/fonts/Gloria_Hallelujah/GloriaHallelujah-Regular.ttf');
 }
+
+@font-face {
+  font-family: 'Source Code Pro';
+  src: url('/fonts/Source_Code_Pro/SourceCodePro-VariableFont_wght.ttf');
+}

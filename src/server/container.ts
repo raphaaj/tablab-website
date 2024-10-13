@@ -1,5 +1,7 @@
 import { container as globalContainer } from 'tsyringe';
 
+import { ITablatureRowLabelServiceInjectionToken } from '@common/services/tablature-row-label-service/interfaces/tablature-row-label-service.interface';
+import { TablatureRowLabelService } from '@common/services/tablature-row-label-service/tablature-row-label-service';
 import { CommonErrorsProviderService } from '@server/services/errors-provider-services/common-errors-provider-service/common-errors-provider-service';
 import { ICommonErrorsProviderServiceInjectionToken } from '@server/services/errors-provider-services/common-errors-provider-service/interfaces/common-errors-provider-service.interface';
 import { ITablatureErrorsProviderServiceInjectionToken } from '@server/services/errors-provider-services/tablature-errors-provider-service/interfaces/tablature-errors-provider-service.interface';
@@ -25,3 +27,4 @@ container.register(
 
 container.register(ICommonErrorsProviderServiceInjectionToken, CommonErrorsProviderService);
 container.register(ITablatureErrorsProviderServiceInjectionToken, TablatureErrorsProviderService);
+container.register(ITablatureRowLabelServiceInjectionToken, TablatureRowLabelService);

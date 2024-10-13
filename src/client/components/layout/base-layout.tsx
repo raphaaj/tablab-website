@@ -90,7 +90,7 @@ const BaseLayout: FC<BaseLayoutProps> = ({ children }) => {
       <Snackbar
         key={snackbarState.currentSnackbar?.key}
         open={snackbarState.isSnackbarOpen}
-        autoHideDuration={2000}
+        autoHideDuration={5000}
         onClose={handleSnackbarCloseEvent}
         anchorOrigin={{ vertical: isMobile ? 'top' : 'bottom', horizontal: 'right' }}
         TransitionProps={{ onExited: handleSnackbarClosed }}

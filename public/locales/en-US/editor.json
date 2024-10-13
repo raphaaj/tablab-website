@@ -46,5 +46,16 @@
         "message": "Please, try again in a few seconds."
       }
     }
+  },
+  "tab-download": {
+    "controls": {
+      "download": {
+        "label": "Download tablature"
+      }
+    },
+    "error": {
+      "title": "Failed to download tablature",
+      "message": "An unexpected error occurred while saving the tablature. Please, try again in a few seconds."
+    }
   }
 }

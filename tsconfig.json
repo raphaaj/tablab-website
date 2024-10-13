@@ -5,6 +5,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "noEmit": true,
+    "noImplicitOverride": true,
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,

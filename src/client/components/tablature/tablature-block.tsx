@@ -3,6 +3,11 @@ import TablatureBlockContainer, {
 } from '@client/components/tablature/tablature-block-container';
 import TablatureBlockRowContainer from '@client/components/tablature/tablature-block-row-container';
 import TablatureTypographyContent from '@client/components/tablature/tablature-typography-content';
+import { container } from '@client/container';
+import {
+  ITablatureRowLabelService,
+  ITablatureRowLabelServiceInjectionToken,
+} from '@common/services/tablature-row-label-service/interfaces/tablature-row-label-service.interface';
 import { FC } from 'react';
 
 export interface TablatureBlockProps {
@@ -17,11 +22,14 @@ export interface TablatureBlockProps {
 }
 
 const TablatureBlock: FC<TablatureBlockProps> = (props) => {
-  const tabBlockRowPrefixLength = Math.trunc(1 + (props.block.length - 2) / 10) + 2;
-
   const disableGutters = props.disableGutters ?? false;
   const discardHeader = props.discardHeader ?? false;
   const discardFooter = props.discardFooter ?? false;
+
+  const tablatureRowLabelService = container.resolve<ITablatureRowLabelService>(
+    ITablatureRowLabelServiceInjectionToken
+  );
+  const blockWithLabels = tablatureRowLabelService.addLabelToTablatureBlockRows(props.block);
 
   return (
     <TablatureBlockContainer
@@ -30,21 +38,18 @@ const TablatureBlock: FC<TablatureBlockProps> = (props) => {
       fullWidth={props.fullWidth}
       label={props.label}
     >
-      {props.block.map((blockRow, blockRowIndex) => {
-        if (blockRowIndex === 0 && discardHeader) return null;
-        if (blockRowIndex + 1 === props.block.length && discardFooter) return null;
+      {blockWithLabels.map((blockRowWithLabel, blockRowWithLabelIndex) => {
+        if (blockRowWithLabelIndex === 0 && discardHeader) return null;
+        if (blockRowWithLabelIndex + 1 === blockWithLabels.length && discardFooter) return null;
 
         return (
           <TablatureBlockRowContainer
-            key={blockRowIndex}
-            isLastRow={blockRowIndex === props.block.length - 1}
+            key={blockRowWithLabelIndex}
+            isLastRow={blockRowWithLabelIndex === blockWithLabels.length - 1}
             borderless={props.borderless}
           >
             <TablatureTypographyContent sx={{ textAlign: 'center' }}>
-              {blockRowIndex === 0 || blockRowIndex === props.block.length - 1
-                ? ''.padStart(tabBlockRowPrefixLength, ' ')
-                : `${blockRowIndex}) `.padStart(tabBlockRowPrefixLength, ' ')}
-              {blockRow}
+              {blockRowWithLabel}
             </TablatureTypographyContent>
           </TablatureBlockRowContainer>
         );

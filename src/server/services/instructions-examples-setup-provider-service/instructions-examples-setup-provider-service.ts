@@ -71,7 +71,7 @@ export class InstructionsExamplesSetupProviderService
   }
 
   public useLocale(locale: string): void {
-    this._locale = locale;  
+    this._locale = locale;
   }
 
   public async getBasicInstructionExamplesSetup(): Promise<
@@ -203,8 +203,6 @@ export class InstructionsExamplesSetupProviderService
 
     return spacingInstructionExamplesSetup;
   }
-
-  
 
   private async _getTranslationFunction(): Promise<TranslationFunction> {
     return this._translationService.getTranslationFunction(this._locale, ['instruction-examples']);

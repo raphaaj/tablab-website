@@ -5,15 +5,26 @@ import Tablature from '@client/components/tablature/tablature';
 import TablatureSkeleton from '@client/components/tablature/tablature-skeleton';
 import NextLinkComposed from '@client/components/ui/next-link-composed';
 import TextFieldFontMonospace from '@client/components/ui/text-field-font-monospace';
+import { container } from '@client/container';
+import { useSnackbarReducerContext } from '@client/contexts/snackbar-reducer.context';
 import { useHtmlElementSize } from '@client/hooks/use-html-element-size';
 import { TablatureCreationError } from '@client/models/tablature/tablature-creation-error';
+import { TablatureDownloadError } from '@client/models/tablature/tablature-download-error';
+import { EnqueueSnackbarAction } from '@client/reducers/snackbar.reducer';
+import {
+  ITablatureService,
+  ITablatureServiceInjectionToken,
+} from '@client/services/tablature-service/interfaces/tablature-service.interface';
 import { TablatureInstructionCompilationErrorDetails } from '@common/view-models/tablature/tablature-compilation-error';
 import CreateIcon from '@mui/icons-material/Create';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
 import Collapse from '@mui/material/Collapse';
 import Grid from '@mui/material/Grid';
@@ -29,9 +40,6 @@ import { Trans, useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import React, { useRef, useState } from 'react';
-
-import { container } from "@client/container";
-import { ITablatureService, ITablatureServiceInjectionToken } from '@client/services/tablature-service/interfaces/tablature-service.interface';
 
 export const DEFAULT_NUMBER_OF_STRINGS = 6;
 export const DEFAULT_INITIAL_SPACING = 3;
@@ -58,6 +66,9 @@ export const NUMBER_OF_TABLATURE_BLOCKS_ON_SKELETON = 3;
 
 interface Tablature {
   blocks: string[][];
+  initialSpacing: number;
+  instructions: string;
+  numberOfStrings: number;
   observations: string | null;
   title: string | null;
 }
@@ -68,10 +79,9 @@ function createInvalidInstructionFromInstructionRenderizationError(
   let invalidChildInstructions: InvalidInstruction[] | null = null;
 
   if (instructionRenderizationError.childInstructionsCompilationErrors) {
-    invalidChildInstructions =
-      instructionRenderizationError.childInstructionsCompilationErrors.map(
-        createInvalidInstructionFromInstructionRenderizationError
-      );
+    invalidChildInstructions = instructionRenderizationError.childInstructionsCompilationErrors.map(
+      createInvalidInstructionFromInstructionRenderizationError
+    );
   }
 
   return {
@@ -103,7 +113,11 @@ export default function Editor() {
   const [invalidInstructions, setInvalidInstructions] = useState<InvalidInstruction[] | null>(null);
   const [tabCreationError, setTabCreationError] = useState<unknown | null>(null);
 
+  const [isDownloadingTab, setIsDownloadingTab] = useState(false);
+
   const contentGridSize = useHtmlElementSize(contentGridRef.current);
+
+  const { dispatchSnackbarAction } = useSnackbarReducerContext();
 
   const toggleShowAdvancedOptions = () => {
     setShowAdvancedOptions(!showAdvancedOptions);
@@ -157,7 +171,9 @@ export default function Editor() {
     setIsCreatingTab(true);
 
     try {
-      const tablatureService = container.resolve<ITablatureService>(ITablatureServiceInjectionToken);
+      const tablatureService = container.resolve<ITablatureService>(
+        ITablatureServiceInjectionToken
+      );
 
       let tablatureRowsLength = tablatureService.getMinTablatureRowsLength();
       if (contentGridSize.width) {
@@ -182,9 +198,12 @@ export default function Editor() {
       );
 
       setCreatedTab({
-        title: tabCreationResult.title,
-        observations: tabCreationResult.observations,
         blocks: tabCreationResult.tablature,
+        initialSpacing: tabCreationResult.initialSpacing,
+        instructions: tabCreationResult.instructions,
+        numberOfStrings: tabCreationResult.numberOfStrings,
+        observations: tabCreationResult.observations,
+        title: tabCreationResult.title,
       });
     } catch (error) {
       if (error instanceof TablatureCreationError && error.instructionsCompilationErrors) {
@@ -202,6 +221,55 @@ export default function Editor() {
       }
     } finally {
       setIsCreatingTab(false);
+    }
+  };
+
+  const handleDownloadTablature = async () => {
+    if (isDownloadingTab) return;
+
+    setIsDownloadingTab(true);
+
+    try {
+      if (!createdTab) throw new TablatureDownloadError();
+
+      const tablatureService = container.resolve<ITablatureService>(
+        ITablatureServiceInjectionToken
+      );
+
+      const tablaturePdfDocument = await tablatureService.downloadTablatureAsPdfDocument(
+        {
+          initialSpacing: createdTab.initialSpacing,
+          instructions: createdTab.instructions,
+          numberOfStrings: createdTab.numberOfStrings,
+          observations: createdTab.observations,
+          title: createdTab.title,
+        },
+        { acceptedLanguage: router.locale }
+      );
+
+      const tablaturePdfDocumentObjectURL = window.URL.createObjectURL(tablaturePdfDocument);
+
+      const downloadTablatureLinkElement = document.createElement('a');
+      downloadTablatureLinkElement.href = tablaturePdfDocumentObjectURL;
+      downloadTablatureLinkElement.download = 'tablature.pdf';
+      document.body.appendChild(downloadTablatureLinkElement);
+      downloadTablatureLinkElement.click();
+      document.body.removeChild(downloadTablatureLinkElement);
+
+      window.URL.revokeObjectURL(tablaturePdfDocumentObjectURL);
+    } catch (error) {
+      const errorSnackbarTitle = t('tab-download.error.title');
+      const errorSnackbarMessage = t('tab-download.error.message');
+
+      dispatchSnackbarAction(
+        new EnqueueSnackbarAction({
+          severity: 'error',
+          title: errorSnackbarTitle,
+          message: errorSnackbarMessage,
+        })
+      );
+    } finally {
+      setIsDownloadingTab(false);
     }
   };
 
@@ -376,11 +444,24 @@ export default function Editor() {
             )}
 
             {!isCreatingTab && createdTab && (
-              <Tablature
-                blocks={createdTab.blocks}
-                observations={createdTab.observations}
-                title={createdTab.title}
-              />
+              <>
+                <Tablature
+                  blocks={createdTab.blocks}
+                  observations={createdTab.observations}
+                  title={createdTab.title}
+                />
+                <Box sx={{ textAlign: 'center', mt: 3 }}>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    endIcon={<SaveAltIcon />}
+                    disabled={isDownloadingTab}
+                    onClick={handleDownloadTablature}
+                  >
+                    {t('tab-download.controls.download.label')}
+                  </Button>
+                </Box>
+              </>
             )}
 
             {!isCreatingTab && invalidInstructions && (

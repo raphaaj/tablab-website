@@ -112,7 +112,10 @@ describe(RequestHelperService.name, () => {
       });
 
       translationServiceMock.getDefaultLocale.mockReturnValueOnce(defaultLocale);
-      translationServiceMock.getSupportedLocales.mockReturnValueOnce([defaultLocale, preferedLocale]);
+      translationServiceMock.getSupportedLocales.mockReturnValueOnce([
+        defaultLocale,
+        preferedLocale,
+      ]);
 
       const localeOption = requestHelperService.getLocaleOptionOrDefaultLocale(request);
 

@@ -11,7 +11,7 @@ const COLOR_PRIMARY_MAIN = red[900];
 const COLOR_SECONDARY_MAIN = lime[500];
 
 const FONT_FAMILY_DEFAULT = ['"Montserrat"', 'sans-serif'].join(',');
-const FONT_FAMILY_MONOSPACE = ['"JetBrains Mono"', 'monospace'].join(',');
+const FONT_FAMILY_MONOSPACE = ['"Source Code Pro"', 'monospace'].join(',');
 const FONT_FAMILY_BRAND = ['"Gloria Hallelujah"', 'cursive'].join(',');
 
 const palette = {

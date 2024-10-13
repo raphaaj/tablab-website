@@ -1,6 +1,6 @@
 import { ErrorCode } from '@common/enums/error-code';
 import { TablatureCreationRequest } from '@common/view-models/tablature/tablature-creation-request';
-import tabsApiHandler from '@pages/api/tabs';
+import tabsApiHandler from '@pages/api/tablature/index';
 import {
   ITablatureErrorsProviderService,
   ITablatureErrorsProviderServiceInjectionToken,
@@ -52,7 +52,7 @@ jest.mock('@server/container', () => {
   };
 });
 
-const URL = '/api/tabs';
+const URL = '/api/tablature';
 
 beforeEach(() => {
   mockReset(requestHelperServiceMock);
