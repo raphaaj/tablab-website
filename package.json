@@ -36,8 +36,8 @@
     "react-dom": "^18.2.0",
     "react-i18next": "^14.0.5",
     "reflect-metadata": "^0.2.1",
-    "tablab": "^1.0.0-alpha.5",
-    "tablab-i18n": "^1.0.0-alpha.2",
+    "tablab": "^1.0.0",
+    "tablab-i18n": "^1.0.1",
     "tsyringe": "^4.8.0"
   },
   "devDependencies": {
